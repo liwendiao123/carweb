@@ -1,0 +1,115 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace UCMS.WebSite.Controllers.Car
+{
+    public class CarAuditController : Controller
+    {
+        Provider.CarInfoProvider provider = new Provider.CarInfoProvider();
+        // GET: CarAudit
+        [Extension.UserAuthorize]
+        public ActionResult Index()
+        {
+            var TypeItem = UserControl.SelectItem.CarTypeItem(0, true);
+            ViewBag.TypeItem = TypeItem;
+            return View();
+        }
+        [Extension.UserAuthorize(ActionName = "Index")]
+        public ActionResult GetList(Common.PagingModels paging, string Search)
+        {
+            var model = new List<Models.CarInfoModels.CarInfoModel>();
+            var list = provider.GetAuditList(paging, Search);
+            foreach (var item in list)
+            {
+                model.Add(new Models.CarInfoModels.CarInfoModel
+                {
+                    Id = item.Id.ToString(),
+                    SeriesName = item.SeriesName,
+                    CarNo = item.CarNo,
+                    TypeName = item.TypeName,
+                    BrandName = item.BrandName,
+                    RetailPrice = item.RetailPrice,
+                    LicenseTime = item.LicenseTime,
+                    AuditStatus = item.AuditStatus,
+                    Remark = item.Remark,
+                    CreateTime = item.CreateTime,
+                    CarName = item.CarName,
+                    CarStatus = item.CarStatus,
+                });
+            }
+            var json = new
+            {
+                Data = model,
+                RowCount = paging.totalrows
+            };
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(json));
+        }
+        [Extension.UserAuthorize]
+        public ActionResult Create(long? Id)
+        {
+            //TODO:如果已审核不给修改
+            var model = new Models.CarInfoModels.CarInfoModel();
+            if (Id == null)
+            {
+                return Content("操作失败！");
+            }
+                var item = provider.GetCarById(Id.Value);
+                if (item.AuditStatus != (int)Common.EnumModel.EAuditStatus.Normal)
+                {
+                    return Content("不能编辑此数据！");
+                }
+                var pt = provider.GetCarPhotoById(item.Id);
+                var photo = new List<Models.CarInfoModels.PhotoModel>();
+                foreach (var p in pt)
+                {
+                    photo.Add(new Models.CarInfoModels.PhotoModel
+                    {
+                        Id = p.Id,
+                        URL = new Common.FileHelper().GetFileUrl(p.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    });
+                }
+                model = new Models.CarInfoModels.CarInfoModel
+                {
+                    Id = item.Id.ToString(),
+                    SeriesId = item.SeriesId,
+                    SweptVolume = item.SweptVolume,
+                    ProductAddress = item.ProductAddress,
+                    BrandId = item.BrandId,
+                    CarColor = item.CarColor,
+                    CarName = item.CarName,
+                    EmissionStandards = item.EmissionStandards,
+                    Fuel = item.Fuel,
+                    LicenseTime = item.LicenseTime,
+                    Odometer = item.Odometer,
+                    Remark = item.Remark,
+                    RetailPrice = item.RetailPrice,
+                    Transmission = item.Transmission,
+                    TypeId = item.TypeId,
+                    VIN = item.VIN,
+                    BrandName=item.BrandName,
+                    SeriesName=item.SeriesName,
+                    TypeName=item.TypeName,
+                    VehicleLicense = new Common.FileHelper().GetFileUrl(item.VehicleLicense, Common.FileConfig.OtherPhotoPath, this.HttpContext),
+                    TestReport = new Common.FileHelper().GetFileUrl(item.TestReport, Common.FileConfig.OtherPhotoPath, this.HttpContext),
+                    Photo = photo
+                };
+            return View(model);
+        }
+        [Extension.UserAuthorize(ActionName = "Create")]
+        public ActionResult Audit(long Id, byte Status,string AuditExplan)
+        {
+            var model = new Entitys.CarInfo() {
+                Id=Id,
+                AuditExplan= AuditExplan,
+                AuditPerson=Common.FormsTicket.UserId,
+                AuditStatus=Status,
+                AuditTime=DateTime.Now,
+            };
+            var line = provider.Audit(model);
+            return Json(new { d = line > 0 ? 1 : 0 });
+        }
+    }
+}

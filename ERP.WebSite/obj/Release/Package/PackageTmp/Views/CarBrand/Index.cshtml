@@ -1,0 +1,166 @@
+﻿
+@{
+    //Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>品牌设置</title>
+</head>
+<body>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget box light-grey">
+                <div class="widget-title">
+                    <div class="actions">
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="Add()"><i class="icon-pencil"></i>&nbsp;新增</a>
+                        <a class="btn btn-danger" href="javascript:void(0)" onclick="Delete()"><i class="icon-trash"></i>&nbsp;删除</a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="row-fluid">
+                        <form class="form-horizontal" action="javascript:void(0)">
+                            <div class="control-group">
+                                <div class="controls controls-cus">
+                                    <input id="txtSearch" type="text" class="input-xlarge" style="width:220px;" />
+                                    <a id="gritter-remove-all" class="btn btn-info" href="javascript:void(0)" onclick="PageClick(1)"><i class="icon-search"></i>&nbsp;搜索</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table-bordered table table-striped table-hover" id="tabInfo">
+                        <thead>
+                            <tr class="widget-title1">
+                                <th style="width: 8px;"><input type="checkbox" class="group-checkable" onclick="SelectAll(this)" /></th>
+                                <th>排序号</th>
+                                <th>品牌名称</th>
+                                <th style="width: 150px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                    <td colspan="10" style="text-align:center">
+                                        暂无数据。。。
+                                    </td>
+                                </tr>
+                        </tbody>
+                    </table>
+                    <div class="row-fluid" id="mypager">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            //$(".widget").css("height", ($(window.parent.document).height() - 150));
+            //$(".widget").css("overflow-y", "scroll");
+            PageClick(1);
+        });
+        function PageClick(pageIndex, pageSize) {
+            erp.loading();
+            pageSize = pageSize == undefined ? 10 : pageSize;
+            var search = $("#txtSearch").val();
+            var param = {};
+            param["page"] = pageIndex;
+            param["rows"] = pageSize;
+            param["search"] = search;
+
+            $.ajax({
+                url: controller() + "GetList",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    var json = result;
+                    var Html = "";
+                    if (json.Data != undefined && json.Data.length > 0) {
+                        $(json.Data).each(function (i, item) {
+                            Html += "<tr class=\"odd gradeX\">";
+                            Html += "<td>";
+                            Html += '<input id="checkedId" name="checkedId" type="checkbox" value="' + item.Id + '">';
+                            Html += "</td>";
+                            Html += "<td>" + item.BrandSort + "</td>";
+                            Html += "<td>" + item.BrandName + "</td>";
+                            Html += "<td style='text-align:center'>";
+                            Html += "<a href=\"javascript:void(0)\" onclick=\"Add('" + item.Id + "')\">修改</a>";
+                            Html += "</td>";
+                            Html += "</tr>";
+                        });
+                    }
+                    else {
+                        Html += '<tr><td colspan="10" style="text-align:center">暂无数据</td></tr>';
+                    }
+                    $("#tabInfo tbody").html(Html);
+                    $("#mypager").pager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: pageSize, buttonClickCallback: PageClick });
+                }
+            });
+        }
+        function controller() {
+            return '@Url.Content("~/Car/CarBrand/")';
+        }
+        function Add(Id) {
+            Id = Id == undefined ? "" : Id;
+            $.jBox.open("get:" + controller() + "Create?Id=" + Id, "编辑品牌", 450, 250, {
+                buttons: { '确定': true, '关闭': false }, submit: function (v, h, f) {
+                    if (v == true) {
+                        window.Save();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+        }
+
+        function SelectAll(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", true);
+            } else {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", false);
+            }
+        }
+        function Delete() {
+            var items = [];
+            $("#tabInfo").children("tbody").find("input[type='checkbox']").each(function (i, item) {
+                var flag = $(item).attr("checked");
+                if (flag || flag == "checked") {
+                    var cateNum = $(item).val();
+                    items.push(cateNum);
+                }
+            });
+            if (items.length == 0) {
+                $.jBox.tip("请选择要删除的数据", "warn");
+                return false;
+            }
+
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+                    var param = {};
+                    param["checkedId"] = items.join(",");
+
+                    $.ajax({
+                        url: controller()+"Delete",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                $.jBox.tip("删除成功！", "success");
+                                location.reload()
+                            } else {
+                                $.jBox.tip("删除失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要做删除操作？", "提示", submit);
+        }
+    </script>
+</body>
+</html>

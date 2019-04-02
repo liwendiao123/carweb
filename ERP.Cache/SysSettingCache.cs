@@ -1,0 +1,125 @@
+﻿using Memcached.ClientLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace UCMS.Cache
+{
+    public class SysSettingCache
+    {
+        MemcachedClient mc;
+        public SysSettingCache()
+        {
+            mc = new MemcachedClient();
+            mc.EnableCompression = false;
+        }
+
+        /// <summary>
+        /// 添加缓存
+        /// </summary>
+        /// <param name="SystemCode">系统编号</param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public bool Set(int SystemCode, SysSettingModel list)
+        {
+            return mc.Set(this.GetCacheName(SystemCode), list, DateTime.Now.AddDays(7));
+        }
+
+        /// <summary>
+        /// 获取缓存
+        /// </summary>
+        /// <param name="SystemCode">系统编号</param>
+        /// <returns></returns>
+        public SysSettingModel Get(int SystemCode)
+        {
+            var list = new SysSettingModel();
+            if (!this.Exists(SystemCode))
+            {
+                var db = new UCMS.Entitys.UCMSContext();
+
+                var tb = db.SysSetting.FirstOrDefault();
+                if (tb != null)
+                {
+                    list = new SysSettingModel {
+                        Id=tb.Id,
+                        SystemName=tb.SystemName,
+                        Contact=tb.Contact,
+                        Feeback=tb.Feeback,
+                        HomeLogo=tb.HomeLogo,
+                        LoginLogo=tb.LoginLogo,
+                        FootLogo=tb.FootLogo,
+                        IsEnable=tb.IsEnable
+                    };
+                    //保存缓存
+                    this.Set(SystemCode, list);
+                }
+            }
+            else
+            {
+                list = (SysSettingModel)mc.Get(this.GetCacheName(SystemCode));
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 删除缓存
+        /// </summary>
+        /// <param name="SystemCode">系统编号</param>
+        /// <returns></returns>
+        public bool Delete(int SystemCode)
+        {
+            return mc.Delete(this.GetCacheName(SystemCode));
+        }
+
+        /// <summary>
+        /// 是否存在缓存
+        /// </summary>
+        /// <param name="SystemCode">系统编号</param>
+        /// <returns></returns>
+        public bool Exists(int SystemCode)
+        {
+            return mc.KeyExists(this.GetCacheName(SystemCode));
+        }
+
+        /// <summary>
+        /// 缓存id
+        /// </summary>
+        /// <returns></returns>
+        private string GetCacheName(int SystemCode)
+        {
+            return String.Format("{0}-{1}", MemcachedKey.SETTING, SystemCode);
+        }
+        [Serializable]
+        public class SysSettingModel
+        {
+            public long Id { get; set; }
+            /// <summary>
+            /// 系统名称
+            /// </summary>
+            public string SystemName { get; set; }
+            /// <summary>
+            /// 主页logo
+            /// </summary>
+            public string HomeLogo { get; set; }
+            /// <summary>
+            /// 登录页logo
+            /// </summary>
+            public string LoginLogo { get; set; }
+            /// <summary>
+            /// 账号开通联系方式
+            /// </summary>
+            public string Contact { get; set; }
+            /// <summary>
+            /// 问题反馈群
+            /// </summary>
+            public string Feeback { get; set; }
+            /// <summary>
+            /// 底部logo
+            /// </summary>
+            public string FootLogo { get; set; }
+            public int IsEnable { get; set; }
+        }
+    }
+}

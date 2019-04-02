@@ -1,0 +1,34 @@
+﻿
+<!DOCTYPE html>
+@model IEnumerable<UCMS.WebSite.Models.SysNoticeModels.SysNoticeModel>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>通知公告</title>
+    <style>
+        .news{       line-height: 28px;
+    display: inline-block;
+    width: 300px;
+    margin-left: 10px;
+    overflow: hidden;height: 28px;
+        }
+    </style>
+</head>
+<body>
+    @Html.Partial("_Top")
+    <div class="pContent"> 
+        @if (Model != null && Model.Count() > 0)
+        {
+            <div>
+                @foreach (var item in Model)
+                {
+                    <span class="news"><a href="~/Default/Notice/@item.Id">>>@item.Title</a></span>
+                }
+            </div>}
+        <div style="padding:10px;width: 980px;">
+            @Html.Raw(ViewBag.Content as string)
+        </div>
+    </div>
+    @Html.Partial("_Foot")
+</body>
+</html>

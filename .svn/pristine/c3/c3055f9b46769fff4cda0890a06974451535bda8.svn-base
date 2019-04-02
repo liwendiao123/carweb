@@ -1,0 +1,149 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebApp.Models.HomeModels.CarInfoModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>CarInfo</title>
+    <link href="~/Content/base.css" rel="stylesheet" />
+    <link href="~/Content/cs.css" rel="stylesheet" />
+    <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
+    <script src="~/Scripts/function.js"></script>
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script src="~/Scripts/jweixin-1.2.0.js"></script>
+    <script src="~/Scripts/slider.js"></script>
+</head>
+<body>
+    <div class="w floatcenter clearfix">
+
+        <div class="top">
+            <a href="/">二手车信息网</a>
+        </div>
+        <div class="carinfo clearfix">
+            <div class="carinfo1">
+                <div class="flexslider">
+                    <div class="flex-viewport">
+                        <ul class="slides">
+                            @{
+                                int index = 1;
+                                <li>
+                                    <div class="img"><img id="imgPic" src="@Model.PhotoURL" style="border-width:0px;" /></div>
+                                </li>
+                                foreach (var item in Model.Photo)
+                                {
+                                    <li>
+                                        <div class="img"><img id="imgPic @index" src="@item.URL" style="border-width:0px;" /></div>
+                                    </li>
+                                    index++;
+                                }
+                            }
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+                <script type="text/javascript">
+                    $(function () {
+                        $('.flexslider').flexslider({
+                            animation: "slide",
+                            start: function (slider) {
+                                $('body').removeClass('loading');
+                            }
+                        });
+                    });
+                </script>
+                <div class="carinfo2">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th><h2>@Html.Raw(Model.BrandName + Model.SeriesName + Model.CarName)</h2>@Html.Raw(Model.IsRepay)</th>
+                            </tr>
+                            <tr>
+                                <th><h1>￥@Html.Raw(Model.RetailPrice)万</h1></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="carinfo3t clearfix">联系方式</div>
+                <div class="carinfo3 clearfix">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>联系方式：</th>
+                                <td>@Html.Raw(Model.Contact)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="carinfo3t clearfix">车辆配置</div>
+                <div class="carinfo3 clearfix">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th>上牌日期：</th>
+                                <td>@Html.Raw(Model.LicenseTime.ToString("yyyy年MM月"))</td>
+                                <th>车辆车型：</th>
+                                <td>@Model.TypeName</td>
+                            </tr>
+                            <tr>
+                                <th>车辆产地：</th>
+                                <td>@Model.ProductAddress</td>
+                                <th>车辆颜色：</th>
+                                <td>@Model.CarColor</td>
+                            </tr>
+                            <tr>
+                                <th>燃      料：</th>
+                                <td>@Model.Fuel</td>
+                                <th>排 气 量：</th>
+                                <td>@Model.SweptVolume T</td>
+                            </tr>
+                            <tr>
+                                <th>变 速 器：</th>
+                                <td>@Model.Transmission</td>
+                                <th>表显里程：</th>
+                                <td>@Model.Odometer</td>
+                            </tr>
+                            <tr>
+                                <th>排放标准：</th>
+                                <td>@Model.EmissionStandards</td>
+                                <th>发布日期：</th>
+                                <td>@Html.Raw(Model.CreateTime.ToString("yyyy-MM-dd"))</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="carinfo3t clearfix">车辆图片</div>
+                <div class="carinfo4s clearfix">
+                <img src="@Model.PhotoURL" />
+                @foreach (var item in Model.Photo)
+                {
+                    <img src="@item.URL" />
+                } 
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="bgLine clearfix">&nbsp;</div>
+        </div>
+
+    <div class="bottom">
+        <table>
+            <tbody>
+                <tr>
+                    <th><a href="tel:4008051237">40080-51237</a></th>
+                    <td><a href="http://m.icip.com.cn/car.aspx"><br>网上展厅</a></td>
+                    <td><a href="http://m.icip.com.cn/appraiser.aspx"><br>旧车评估</a></td>
+                    <td><a href="http://m.icip.com.cn/about.aspx"><br>关于我们</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="piao">
+        <div onclick="$(window).scrollTop(0);">顶部</div>
+    </div>
+</body>
+</html>

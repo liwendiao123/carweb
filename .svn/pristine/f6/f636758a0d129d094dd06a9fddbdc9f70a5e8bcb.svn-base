@@ -1,0 +1,48 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace UCMS.WebSite.Controllers.Sys
+{
+    public class HotSearchController : Controller
+    {
+        Provider.SysHotSearchProvider provider = new Provider.SysHotSearchProvider();
+        // GET: HotSearch
+        [Extension.UserAuthorize]
+        public ActionResult Index()
+        {
+            var list = new List<Models.HotSearchModels.CarBrand>();
+            var cb = new Cache.CarBrandCache().Get(Common.FormsTicket.SystemCode);
+            var cs = new Cache.CarSeriesCache();
+            var hc = provider.GetList();
+            var info= new List<Models.HotSearchModels.CarSeries>();
+            foreach (var b in cb.OrderBy(c=>c.Initial))
+            {
+                info = new List<Models.HotSearchModels.CarSeries>();
+                foreach (var item in cs.Get(b.Id))
+                {
+                    info.Add(new Models.HotSearchModels.CarSeries {
+                        SeriesId=item.Id,
+                        SeriesName=item.SeriesName,
+                        IsSelect=hc.FirstOrDefault(c=>c.SearchId==item.Id)!=null
+                    });
+                }
+                list.Add(new Models.HotSearchModels.CarBrand {
+                    BrandId=b.Id,
+                    BrandhName=b.BrandName,
+                    IsSelect = hc.FirstOrDefault(c => c.SearchId == b.Id) != null,
+                    info =info
+                });
+            }
+            return View(list);
+        }
+        [Extension.UserAuthorize(ActionName = "Index")]
+        public ActionResult Save(long BrandId,long SeriesId)
+        {
+            var line=provider.Edit(BrandId, SeriesId);
+            return Json(new { d = line > 0 ? 1 : 0 });
+        }
+    }
+}

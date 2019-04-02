@@ -1,0 +1,281 @@
+.fixed-top { 
+  color: #222; 
+  background-color:#515255 !important;
+  background-image: url(../img/bg-grey.png) !important;
+}
+
+#header.navbar-inverse .navbar-inner {
+  background-color: #3f4042;
+  background-image: -moz-linear-gradient(top, #3f4042, #4a4b4d);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4a4b4d), to(#4a4b4d));
+  background-image: -webkit-linear-gradient(top, #3f4042, #4a4b4d);
+  background-image: -o-linear-gradient(top, #3f4042, #4a4b4d);
+  background-image: linear-gradient(to bottom, #3f4042, #4a4b4d);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3f4042', endColorstr='#ff4a4b4d', GradientType=0);
+  border-color: #333436;
+  webkit-box-shadow: 0 1px 10px rgba(55, 55, 55, .1);
+    -moz-box-shadow: 0 1px 10px rgba(55, 55, 55, .1);
+         box-shadow: 0 1px 10px rgba(55, 55, 55, .1);
+}
+
+#header .navbar-inner .nav .dropdown-toggle:hover, .navbar-inner .nav .dropdown.open .dropdown-toggle {
+  background-color: #333 !important;
+}
+
+#header.navbar-inverse .divider-vertical {
+  border-left-color: #3c3d3f;
+  border-right-color: #4e4f51;
+}
+
+#sidebar > ul > li > a {
+  border-top: 1px solid #58595d !important;
+  border-bottom: 1px solid #3e3f41 !important;
+  color: #eee !important;
+  text-shadow: 0 1px 1px #333 !important;
+}
+
+#sidebar > ul > li a i {
+   color: #999 !important;
+}
+
+#sidebar > ul > li >a:hover, #sidebar > ul > li:hover>a {
+  color: #fff !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .25);
+  background: #444447;
+  background: -webkit-linear-gradient(bottom, #444447, #525356);
+  background: -ms-linear-gradient(bottom, #444447, #525356); 
+  background: -moz-linear-gradient(bottom, #444447, #525356);
+  background: -o-linear-gradient(bottom, #444447, #525356);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff444447', endColorstr='#ff525356', GradientType=0);
+  border-color: transparent;
+  border-top: 1px solid #525356;
+  border-bottom: 1px solid #444447;
+}
+
+#sidebar > ul > li.active > a{
+  background: #444447 !important;
+  border-top: 1px solid #525356;
+  border-bottom: 1px solid #444447;  
+}  
+
+#sidebar > ul > li > ul.sub > li > a {
+  color: #ccc;
+  text-shadow: 0 1px 1px #000;
+}
+
+#sidebar > ul > li > ul.sub > li.active > a, #sidebar > ul > li > ul.sub > li > a:hover {
+  color: #fff;
+  background: #7a7b7f !important;
+}
+
+#sidebar > ul > li > ul.sub > li > a:hover {
+  background: #7a7b7f !important;
+  color: #fff !important;
+}
+
+/* sub menu bg color on hover menu item */
+.sidebar-closed #sidebar > ul > li:hover .sub {
+  background-color: #515255;
+}
+.errorBlock {
+    background-color: #FFC6A5;
+    border: solid 1px #ff0000;
+    color: #ff0000;
+    margin: 10px 10px 0 10px;
+    padding: 7px;
+    font-weight: bold;
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width:979px) { 
+  #sidebar {
+    background-color: #313235;
+     -webkit-border-radius: 4px !important;
+        -moz-border-radius: 4px !important;
+             border-radius: 4px !important;
+  }
+
+  #sidebar > ul > li > a {
+    border-top: 1px solid #3a3b3f !important;
+    border-bottom: 1px solid #292a2c !important;
+  }
+
+  #sidebar > ul > li.active > a, #sidebar > ul > li:hover > a, #sidebar > ul > li > a:hover {
+    border-top: 1px solid #525356 !important;
+    border-bottom: 1px solid #2e2e2e !important;
+  }
+}
+
+#sidebar {
+    width: 180px;
+    position: absolute;
+}
+
+#sidebar ul {
+    width: 180px;
+    margin-top: 47px;
+}
+
+#body {
+    margin-left: 180px;
+    min-height: 870px!important;
+}
+
+.form-horizontal .controls-cus {
+    margin-left: 2px;
+}
+
+
+/*****************************************¸ß¼¶ËÑË÷ÑùÊ½**************************/
+
+.row-fluid .hisearch {
+    margin-left: 1px;
+}
+
+
+/*****************************************·ÖÒ³¿Ø¼þÑùÊ½**************************/
+
+.paget {
+    float: left;
+    width: 260px;
+}
+
+.pagen {
+    float: right;
+    width: 60%;
+}
+
+
+/*****************************************×Ô¶¨ÒåÑùÊ½**************************/
+
+.formtab_user {
+    margin-top: 10px;
+    width: 100%;
+    margin-left: 10px;
+}
+.formtab_user>tbody>tr>th {    
+    text-align: right;
+    height: 50px;
+}
+
+.text_td {
+    text-align: right;
+}
+
+.formtab_customer {
+    margin-top: 10px;
+    /* width: 800px;  */
+    margin-left: 10px;
+}
+
+.customer_des {
+    width: 381px;
+}
+
+.customer_cusType {
+    width: 163px;
+}
+
+.inorder_tab {
+    width: 100%;
+    border-width: 1px;
+    margin-left: 0px;
+    border-collapse: collapse;
+}
+
+.inorder_tab td {
+    padding-left: 5px;
+}
+
+.inorder_tr {
+    height: 27px;
+}
+
+.inorder_tdTitle {
+    width: 11%;
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    empty-cells: show;
+    text-align:right;
+}
+
+.inorder_tdContent {
+    width: 20%;
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    text-align: left;
+    vertical-align: middle;
+    empty-cells: show;
+}
+
+.inorder_topline {
+    border-top: 1px solid #dddddd;
+}
+
+.inorder_detail {
+    border-radius: 0px;
+}
+
+.inorder_detail .inorder_search {
+    padding: 0px;
+    vertical-align: middle;
+    height: 15px;
+    padding-left: 8px;
+}
+
+.inorder_detail .inorder_search .span1 {
+    margin-top: 5px;
+}
+
+.table input.inde {
+    width: 70px;
+    border-radius: 2px;
+    margin-bottom: 0px;
+    padding: 0px;
+    height: 25px;
+    padding-left: 3px;
+}
+
+/*.jbox-state>div {
+    width: auto!important
+}*/
+
+#footer .span.pull-right {
+    width: auto;
+}
+
+.navbar-inverse .nav li.dropdown > .dropdown-toggle .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+
+body {
+    font-family: 'Arial', '微软雅黑';
+}
+
+/*td>select,
+td>input[type="text"],
+td>input[type="password"] {
+    margin-right: 10px;
+    margin-left: 10px
+}*/
+
+.paget select {
+    margin-left: 10px;
+    margin-right: 10px
+}
+
+#ddlLocalType {
+    margin: 0
+}
+html {
+    min-width: 980px
+}
+
+input.error {
+    background-color: #fee;
+}
+.error {
+    color: red;
+}

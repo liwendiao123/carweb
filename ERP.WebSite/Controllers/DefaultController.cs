@@ -1,0 +1,798 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace UCMS.WebSite.Controllers
+{
+    public class DefaultController : Controller
+    {
+        Provider.CarInfoProvider provider = new Provider.CarInfoProvider();
+        // GET: Default
+        public ActionResult Index()
+        {
+            if (Common.ToolHelper.IsMobileDevice())
+            {
+                return RedirectToAction("Index", "Mobile");
+            }
+            GetCommon();
+            var list = new List<UCMS.WebSite.Models.DefaultModels.CarTypeModel>();
+            var type = new Cache.CarTypeCache().Get(Common.FormsTicket.SystemCode);
+            var carInfo = new List<UCMS.WebSite.Models.DefaultModels.CarInfoModel>();
+            foreach (var item in type)
+            {
+                carInfo = new List<UCMS.WebSite.Models.DefaultModels.CarInfoModel>();
+                foreach (var car in provider.GetList(item.Id))
+                {
+                    carInfo.Add(new Models.DefaultModels.CarInfoModel {
+                        Id = car.Id.ToString(),
+                        CarNo = car.CarNo,
+                        CreateTime = car.CreateTime,
+                        SweptVolume = car.SweptVolume,
+                        CarColor = car.CarColor,
+                        CarName = car.CarName,
+                        LicenseTime = car.LicenseTime,
+                        Odometer = car.Odometer,
+                        Remark = car.Remark,
+                        RetailPrice = car.RetailPrice,
+                        BrandName = car.BrandName,
+                        SeriesName = car.SeriesName,
+                        TypeName = car.TypeName,
+                        Transmission = Common.EnumHelper.GetEnumName<Common.EnumModel.ETransmission>(car.Transmission),
+                        Fuel = Common.EnumHelper.GetEnumName<Common.EnumModel.EFuelType>(car.Fuel),
+                        EmissionStandards = Common.EnumHelper.GetEnumName<Common.EnumModel.EEmissionStandards>(car.EmissionStandards),
+                        ProductAddress = Common.EnumHelper.GetEnumName<Common.EnumModel.EProductAddress>(car.ProductAddress),
+                    });
+                }
+                list.Add(new Models.DefaultModels.CarTypeModel {
+                    Id = item.Id,
+                    TypeName = item.TypeName,
+                    CarInfo = carInfo
+                });
+            }
+            return View(list);
+        }
+        /// <summary>
+        /// List 分页查询
+        /// </summary>
+        /// <param name="collecton"></param>
+        /// <param name="paging"></param>
+        /// <returns></returns>
+        public ActionResult CarList(FormCollection collecton, Common.PagingModels paging)
+        {
+            var model = new Provider.CarInfoProvider.ListModel()
+            {
+                TypeId = Common.ToolHelper.ConvertToLong(collecton["TypeId"]),
+                CarNo = collecton["CarNo"],
+                RetailPrice1 = Common.ToolHelper.ConvertToDecimal(collecton["RetailPrice1"]),
+                RetailPrice2 = Common.ToolHelper.ConvertToDecimal(collecton["RetailPrice2"]),
+                Transmission = collecton["Transmission"],
+                BrandId = Common.ToolHelper.ConvertToLong(collecton["BrandId"]),
+                SeriesId = Common.ToolHelper.ConvertToLong(collecton["SeriesId"]),
+                LicenseTime1 = Common.ToolHelper.ConvertToDateTime(collecton["LicenseTime1"]),
+                LicenseTime2 = Common.ToolHelper.ConvertToDateTime(collecton["LicenseTime2"]),
+                Search = collecton["Search"]
+            };
+            var cList = new List<Models.CarInfoModels.CarInfoModel>();
+            foreach (var item in provider.GetList(model, paging))
+            {
+                cList.Add(new Models.CarInfoModels.CarInfoModel {
+
+                    Id = item.Id.ToString(),
+                    CarNo = item.CarNo,
+                    CreateTime = item.CreateTime,
+                    SweptVolume = item.SweptVolume,
+                    CarColor = item.CarColor,
+                    CarName = item.CarName,
+                    LicenseTime = item.LicenseTime,
+                    Odometer = item.Odometer,
+                    Remark = item.Remark,
+                    RetailPrice = item.RetailPrice,
+                    BrandName = item.BrandName,
+                    SeriesName = item.SeriesName,
+                    TypeName = item.TypeName,
+                    Transmission = item.Transmission,
+                    Fuel = item.Fuel,
+                    EmissionStandards = item.EmissionStandards,
+                    ProductAddress = item.ProductAddress,
+                });
+            }
+            var json = new
+            {
+                Data = cList,
+                RowCount = paging.totalrows
+            };
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(json));
+        }
+        /// <summary>
+        /// 车源详情页
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult CarInfo(long? Id)
+        {
+            GetCommon();
+            var model = new Models.DefaultModels.CarInfoModel();
+            if (Id == null)
+            {
+                return Content("非法请求");
+            }
+            else
+            {
+                var item = provider.GetCarById(Id.Value);
+                if (item.AuditStatus != (int)Common.EnumModel.EAuditStatus.Ok)
+                {
+                    return Content("非法请求");
+                }
+                var pt = provider.GetCarPhotoById(item.Id);
+                var photo = new List<Models.DefaultModels.PhotoModel>();
+                foreach (var p in pt)
+                {
+                    photo.Add(new Models.DefaultModels.PhotoModel
+                    {
+                        Id = p.Id,
+                        URL = new Common.FileHelper().GetFileUrl(p.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    });
+                }
+                model = new Models.DefaultModels.CarInfoModel
+                {
+                    Id = item.Id.ToString(),
+                    CarNo = item.CarNo,
+                    CreateTime = item.CreateTime,
+                    SweptVolume = item.SweptVolume,
+                    CarColor = item.CarColor,
+                    CarName = item.CarName,
+                    LicenseTime = item.LicenseTime,
+                    Odometer = item.Odometer,
+                    Remark = item.Remark,
+                    RetailPrice = item.RetailPrice,
+                    BrandName = item.BrandName,
+                    SeriesName = item.SeriesName,
+                    TypeName = item.TypeName,
+                    IsRepay = item.IsRepay == 1 ? "(还价不多)" : "",
+                    Transmission = Common.EnumHelper.GetEnumName<Common.EnumModel.ETransmission>(item.Transmission),
+                    Fuel = Common.EnumHelper.GetEnumName<Common.EnumModel.EFuelType>(item.Fuel),
+                    EmissionStandards = Common.EnumHelper.GetEnumName<Common.EnumModel.EEmissionStandards>(item.EmissionStandards),
+                    ProductAddress = Common.EnumHelper.GetEnumName<Common.EnumModel.EProductAddress>(item.ProductAddress),
+                    PhotoURL = new Common.FileHelper().GetFileUrl(item.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    Photo = photo
+                };
+                if (Common.FormsTicket.UserId > 0)
+                {
+                    var u = new Provider.UserBasisProvider().GetUser(item.UserId);
+                    model.Contact = "<span>QQ：" + u.QQ + "</span><span>微信：" + u.Weixin + "</span><span>电话：" + u.Mobile + "</span>";
+                }
+                else
+                {
+                    model.Contact = "<span>联系方式请登录查看</span>";
+                }
+            }
+            return View(model);
+        }
+        /// <summary>
+        /// 通知公告
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult Notice(long? Id)
+        {
+            GetCommon();
+
+            var list = new Provider.SysNoticeProvider().GetList();
+            var model = new List<Models.SysNoticeModels.SysNoticeModel>();
+            long nId = 0;
+            foreach (var item in list)
+            {
+                model.Add(new Models.SysNoticeModels.SysNoticeModel
+                {
+                    Id = item.Id,
+                    CreateTime = item.CreateTime,
+                    Content = item.Content,
+                    NoticeType = item.NoticeType,
+                    Title = item.Title
+                });
+                if (item.NoticeType == 1)
+                {
+                    nId = item.Id;
+                }
+            }
+            if (Id == null)
+            {
+                Id = nId;
+            }
+            var pro = new Provider.SysNoticeProvider().GetNotice(Id.Value);
+            var str = "";
+            if (pro == null)
+            {
+                str = "<h3 style='text-align: center;'>通知公告</h3><p></p>";
+            }
+            else
+            {
+                str = "<h3 style='text-align: center;'>" + pro.Title + "</h3><p>" + pro.Content + "</p>";
+            }
+            ViewBag.Content = str;
+            return View(model);
+        }
+
+        #region 我的车源
+        public ActionResult MyCar()
+        {
+            var userId = Common.FormsTicket.UserId;
+            if (userId > 0)
+            {
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            var TypeItem = UserControl.SelectItem.CarTypeItem(0, true);
+            ViewBag.TypeItem = TypeItem;
+            GetCommon1();
+            var list = new List<Models.DefaultModels.CarTypeModel>();
+            return View(list);
+        }
+        public ActionResult GetMyCar(FormCollection collecton, Common.PagingModels paging)
+        {
+            var cList = new List<Models.CarInfoModels.CarInfoModel>();
+            var userId = Common.FormsTicket.UserId;
+            if (userId > 0)
+            {
+                var TypeId = Common.ToolHelper.ConvertToLong(collecton["TypeId"]);
+                if (TypeId == Common.Constant.LONG_DEFAULT)
+                {
+                    TypeId = 0;
+                }
+                var Search = collecton["Search"];
+                foreach (var item in provider.GetList(paging, TypeId, Search))
+                {
+                    cList.Add(new Models.CarInfoModels.CarInfoModel
+                    {
+
+                        Id = item.Id.ToString(),
+                        CarNo = item.CarNo,
+                        CreateTime = item.CreateTime,
+                        SweptVolume = item.SweptVolume,
+                        CarColor = item.CarColor,
+                        CarName = item.CarName,
+                        LicenseTime = item.LicenseTime,
+                        Odometer = item.Odometer,
+                        Remark = item.Remark,
+                        RetailPrice = item.RetailPrice,
+                        BrandName = item.BrandName,
+                        SeriesName = item.SeriesName,
+                        TypeName = item.TypeName,
+                        Transmission = item.Transmission,
+                        Fuel = item.Fuel,
+                        EmissionStandards = item.EmissionStandards,
+                        ProductAddress = item.ProductAddress,
+                        AuditStatus=item.AuditStatus,
+                    });
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            var json = new
+            {
+                Data = cList,
+                RowCount = paging.totalrows
+            };
+            return Content(Newtonsoft.Json.JsonConvert.SerializeObject(json));
+        }
+        
+        public ActionResult Create(long? Id)
+        {
+            GetCommon1();
+            var TypeItem = new List<SelectListItem>();
+            var BrandItem = new List<SelectListItem>();
+            var SeriesItem = new List<SelectListItem>();
+            var FualItem = new List<SelectListItem>();
+            var EmissionStandards = new List<SelectListItem>();
+            //TODO:如果已审核不给修改
+            var model = new Models.CarInfoModels.CarInfoModel();
+            if (Id != null)
+            {
+                var item = provider.GetCarById(Id.Value);
+                if (item.AuditStatus != (int)Common.EnumModel.EAuditStatus.Normal)
+                {
+                    return Content("不能编辑此数据！");
+                }
+                var pt = provider.GetCarPhotoById(item.Id);
+                var photo = new List<Models.CarInfoModels.PhotoModel>();
+                foreach (var p in pt)
+                {
+                    photo.Add(new Models.CarInfoModels.PhotoModel
+                    {
+                        Id = p.Id,
+                        URL = new Common.FileHelper().GetFileUrl(p.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    });
+                }
+                model = new Models.CarInfoModels.CarInfoModel
+                {
+                    Id = item.Id.ToString(),
+                    SeriesId = item.SeriesId,
+                    SweptVolume = item.SweptVolume,
+                    ProductAddress = item.ProductAddress,
+                    BrandId = item.BrandId,
+                    CarColor = item.CarColor,
+                    CarName = item.CarName,
+                    EmissionStandards = item.EmissionStandards,
+                    Fuel = item.Fuel,
+                    LicenseTime = item.LicenseTime,
+                    Odometer = item.Odometer,
+                    Remark = item.Remark,
+                    RetailPrice = item.RetailPrice,
+                    Transmission = item.Transmission,
+                    TypeId = item.TypeId,
+                    VIN = item.VIN,
+                    IsRepay = item.IsRepay,
+                    VehicleLicense = new Common.FileHelper().GetFileUrl(item.VehicleLicense, Common.FileConfig.OtherPhotoPath, this.HttpContext),
+                    TestReport = new Common.FileHelper().GetFileUrl(item.TestReport, Common.FileConfig.OtherPhotoPath, this.HttpContext),
+                    PhotoURL = new Common.FileHelper().GetFileUrl(item.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    Photo = photo
+                };
+                TypeItem = UserControl.SelectItem.CarTypeItem(model.TypeId, false, true);
+                BrandItem = UserControl.SelectItem.CarBrandItem(model.BrandId, false, true);
+                SeriesItem = UserControl.SelectItem.CarSeriesItem(model.BrandId, model.SeriesId, false, true);
+                FualItem = Common.EnumHelper.GetEnumItem<Common.EnumModel.EFuelType>(model.Fuel, false, false);
+                EmissionStandards = Common.EnumHelper.GetEnumItem<Common.EnumModel.EEmissionStandards>(model.EmissionStandards, false, false);
+            }
+            else
+            {
+                model.LicenseTime = DateTime.Now;
+                TypeItem = UserControl.SelectItem.CarTypeItem(model.TypeId, false, true);
+                BrandItem = UserControl.SelectItem.CarBrandItem(model.BrandId, false, true);
+                SeriesItem = UserControl.SelectItem.CarSeriesItem(model.BrandId, model.SeriesId, false, true);
+                FualItem = Common.EnumHelper.GetEnumItem<Common.EnumModel.EFuelType>(0, false, false);
+                EmissionStandards = Common.EnumHelper.GetEnumItem<Common.EnumModel.EEmissionStandards>(0, false, false);
+            }
+            ViewBag.TypeItem = TypeItem;
+            ViewBag.BrandItem = BrandItem;
+            ViewBag.SeriesItem = SeriesItem;
+            ViewBag.FualItem = FualItem;
+            ViewBag.EmissionStandards = EmissionStandards;
+            return View(model);
+        }
+
+        [ValidateInput(false)]
+        public ActionResult Save(Models.CarInfoModels.CarInfoModel model, string ImgList, string ImgDelete)
+        {
+            //TODO:如果已审核不给修改
+            if (!string.IsNullOrEmpty(model.Id))
+            {
+                var car = provider.GetCarById(Common.ToolHelper.ConvertToLong(model.Id));
+                if (car.AuditStatus != (int)Common.EnumModel.EAuditStatus.Normal)
+                {
+                    return Json(new { d = -1 });
+                }
+            }
+            #region 图片处理
+            var VehicleLicense = new Common.FileHelper().SaveImgRelative("VehicleLicense", "", Common.FileConfig.OtherPhotoPath);
+            var TestReport = new Common.FileHelper().SaveImgRelative("TestReport", "", Common.FileConfig.OtherPhotoPath);
+            var temp = ImgList.Split(new char[] { ',' });
+            var photoId = new List<string>();
+            foreach (var item in temp)
+            {
+                var pid = new Common.FileHelper().SaveImgRelative(item, "", Common.FileConfig.CarPhotoPath);
+                if (!string.IsNullOrEmpty(pid))
+                {
+                    photoId.Add(pid);
+                }
+            }
+            var PhotoURL = new Common.FileHelper().SaveImgRelative("PhotoURL", "", Common.FileConfig.CarPhotoPath);
+
+            var random = Common.PrimaryKey.GetHashCodeID.ToString();
+            string FilePath = Common.FileConfig.TempPath + random.Substring(0, 4) + "/" + random.Substring(4) + "/";
+            model.Remark = model.Remark == null ? model.Remark = "" : model.Remark;
+            model.Remark = MoveContentImage(model.Remark, FilePath);
+            #endregion
+            var t = UserControl.SelectItem.CarTypeItem(model.TypeId, false).Where(c => c.Value == model.TypeId.ToString()).FirstOrDefault();
+            var s = UserControl.SelectItem.CarSeriesItem(model.BrandId, model.SeriesId, false).Where(c => c.Value == model.SeriesId.ToString()).FirstOrDefault();
+            var b = UserControl.SelectItem.CarBrandItem(model.BrandId, false).Where(c => c.Value == model.BrandId.ToString()).FirstOrDefault();
+            var carInfo = new Entitys.CarInfo()
+            {
+                SeriesId = model.SeriesId,
+                SweptVolume = model.SweptVolume,
+                ProductAddress = model.ProductAddress,
+                BrandId = model.BrandId,
+                CarColor = model.CarColor == null ? "" : model.CarColor,
+                CarName = model.CarName == null ? "" : model.CarName,
+                EmissionStandards = model.EmissionStandards,
+                Fuel = model.Fuel,
+                LicenseTime = model.LicenseTime,
+                Odometer = model.Odometer,
+                Remark = model.Remark == null ? "" : model.Remark,
+                RetailPrice = model.RetailPrice,
+                TestReport = TestReport,
+                Transmission = model.Transmission,
+                TypeId = model.TypeId,
+                VehicleLicense = VehicleLicense,
+                VIN = model.VIN == null ? "" : model.VIN,
+                TypeName = t == null ? "" : t.Text,
+                BrandName = b == null ? "" : b.Text.Substring(1, b.Text.Length - 1),
+                SeriesName = s == null ? "" : s.Text,
+                UserId = Common.FormsTicket.UserId,
+                IsRepay = model.IsRepay,
+                PhotoURL = PhotoURL,
+            };
+            if (!string.IsNullOrEmpty(model.Id))
+            {
+                //修改
+                carInfo.Id = Common.ToolHelper.ConvertToLong(model.Id);
+            }
+            else
+            {
+                //新增
+                carInfo.Id = Common.PrimaryKey.GetHashCodeID;
+                carInfo.AuditStatus = (byte)Common.EnumModel.EAuditStatus.Normal;
+                carInfo.AuditExplan = "";
+                carInfo.AuditPerson = Common.Constant.LONG_DEFAULT;
+                carInfo.AuditTime = DateTime.Now;
+                carInfo.CarNo = Common.FormsTicket.CarNo;
+                carInfo.CarStatus = model.CarStatus;
+                carInfo.CreateTime = DateTime.Now;
+                carInfo.IsDelete = (byte)Common.EnumModel.EIsDelete.NotDelete;
+                carInfo.TimeStamp = DateTime.Now;
+            }
+            var pModel = new List<Entitys.CarPhoto>();
+            foreach (var item in photoId)
+            {
+                pModel.Add(new Entitys.CarPhoto
+                {
+                    Id = Common.PrimaryKey.GetHashCodeID,
+                    CarId = carInfo.Id,
+                    PhotoStatus = 0,
+                    PhotoType = 0,
+                    PhotoURL = item,
+                    IsDelete = (byte)Common.EnumModel.EIsDelete.NotDelete,
+                    TimeStamp = DateTime.Now,
+                });
+            }
+            var line = provider.Edit(carInfo, pModel, string.IsNullOrEmpty(model.Id), ImgDelete);
+            return Json(new { d = line > 0 ? 1 : 0 });
+        }
+        /// <summary>
+        /// 上传内容图片
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult UploadImage()
+        {
+            System.Collections.Hashtable hash = new System.Collections.Hashtable();
+            try
+            {
+                string fileTypes = ".gif,.jpg,.jpeg,.png,.bmp,.mp4,.flv,.swf";
+                HttpPostedFileBase file = Request.Files["imgFile"];
+                if (file != null)
+                {
+                    string fileExt = System.IO.Path.GetExtension(file.FileName).ToLower();
+                    if (string.IsNullOrEmpty(fileExt) || fileTypes.Split(',').ToList().Contains(fileExt))
+                    {
+                        var ImagesId = string.Empty;
+                        var fileMinPath = string.Empty;
+                        //文件夹
+                        var Folder = string.Empty;
+                        //文件ID
+                        var FileId = string.Empty;
+
+                        var TempPath = string.Empty;
+                        if (fileExt == ".mp4" || fileExt == ".flv" || fileExt == ".swf")
+                        {
+                            TempPath = Common.FileConfig.VideoPath;
+                        }
+                        else
+                        {
+                            TempPath = Common.FileConfig.TempPath;
+                        }
+                        while (true)
+                        {
+                            ImagesId = Common.PrimaryKey.GetHashCodeID.ToString();
+                            //文件夹
+                            Folder = ImagesId.Substring(0, 4) + "/";
+                            //文件ID
+                            FileId = ImagesId.Substring(4);
+                            fileMinPath = Server.MapPath(TempPath + Folder + FileId + fileExt);
+                            if (!System.IO.File.Exists(fileMinPath))
+                            {
+                                break;
+                            }
+                        }
+
+                        //判断存储文件路径是否存在
+                        if (!System.IO.Directory.Exists(this.Server.MapPath(TempPath + Folder)))
+                        {
+                            System.IO.Directory.CreateDirectory(this.Server.MapPath(TempPath + Folder));
+                        }
+
+                        if (fileExt == ".mp4" || fileExt == ".flv" || fileExt == ".swf")
+                        {
+                            file.SaveAs(fileMinPath);
+                            var fileUrl = Url.Content(TempPath + Folder + FileId + fileExt);
+                            hash["error"] = 0;
+                            hash["url"] = fileUrl;
+                        }
+                        else
+                        {
+                            //保存原始图片
+                            var fileBigPath = System.IO.Path.GetTempPath() + "BIG-" + ImagesId + fileExt;
+                            file.SaveAs(fileBigPath);
+
+
+                            var pic = System.Drawing.Image.FromFile(fileBigPath);
+                            int intWidth = pic.Width;//长度像素值 
+                            int intHeight = pic.Height;//高度像素值
+                            pic.Dispose();
+                            var picWidth = intWidth;
+                            var picHeight = intHeight;
+                            if (intWidth > 1000 || picHeight > 900)
+                            {
+                                //图片压缩
+                                if (intWidth > intHeight)
+                                {
+                                    picWidth = 1000;
+                                    picHeight = 600;
+                                }
+                                else
+                                {
+                                    picWidth = 1000;
+                                    picHeight = 900;
+                                }
+                            }
+                            new Common.FileHelper().MakeThumbnail(fileBigPath, fileMinPath, picWidth, picHeight, "W");
+                            //删除原始图片
+                            if (System.IO.File.Exists(fileBigPath))
+                            {
+                                System.IO.File.Delete(fileBigPath);
+                            }
+                            var fileUrl = Url.Content(TempPath + Folder + FileId + fileExt);
+                            hash["error"] = 0;
+                            hash["url"] = fileUrl;
+                        }
+                    }
+                    else
+                    {
+                        hash["error"] = 1;
+                        hash["message"] = string.Format("上传文件扩展名是不允许的扩展名{0}", fileTypes);
+                    }
+                }
+                else
+                {
+                    hash["error"] = 1;
+                    hash["message"] = "请选择文件";
+                }
+            }
+            catch (Exception ex)
+            {
+                hash["error"] = 1;
+                hash["message"] = "上传错误：" + ex.Message;
+            }
+            return Json(hash, "text/html", JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// 移动内容图片
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="randomNumber"></param>
+        string MoveContentImage(string content, string FilePath)
+        {
+            string result = content;
+            var contentList = Common.ToolHelper.GetHtmlImageUrlList(content);
+            foreach (var item in contentList)
+            {
+                if (item.Contains("/Temp/"))
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        //url虚拟路径处理
+                        var path = item;
+                        //原文件是否存在
+                        var file = new System.IO.FileInfo(Server.MapPath(path));
+                        if (file.Exists)
+                        {
+                            //保存到新目录
+                            var newFilePath = this.Server.MapPath(FilePath);
+                            if (!System.IO.Directory.Exists(newFilePath))
+                            {
+                                //新目录不存在则创建
+                                System.IO.Directory.CreateDirectory(newFilePath);
+                            }
+                            //将原文件移到新目录下
+                            file.MoveTo(newFilePath + "\\" + file.Name);
+                            string NewFileName = this.Url.Content(string.Format("{0}{1}", FilePath, file.Name));
+
+                            result = result.Replace(path, NewFileName);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+        public ActionResult Delete(string checkedId)
+        {
+            var ids = new List<long>();
+            foreach (var item in checkedId.Split(','))
+            {
+                ids.Add(Common.ToolHelper.ConvertToLong(item));
+            }
+            var line = 0;
+            if (ids.Count > 0)
+            {
+                line = provider.Delete(ids);
+            }
+            return Json(new { d = line > 0 ? 1 : 0 });
+        }
+
+        #endregion
+
+        #region 公共信息
+
+        /// <summary>
+        /// 会员中心
+        /// </summary>
+        public void GetCommon1()
+        {
+            SetUser();
+        }
+        public void SetUser()
+        {
+            var str = "";
+            if (Common.FormsTicket.UserId > 0)
+            {
+                var u = new Provider.UserBasisProvider().GetUser(Common.FormsTicket.UserId);
+                if (Common.FormsTicket.UserType == 1)
+                {
+                    //只有超级管理员才能进入后台
+                    str = "<a style=\"color:white\" href=\"" + Url.Content("~/Home/index") + "\"><span class='login'>进入后台</span></a>&nbsp;<a style=\"color:white\" href=\"" + Url.Content("~/Account/Logout") + "\"><span class='login'>退出</span></a>";
+                }
+                else
+                {
+                    str = "<span style=\"background:none;\">" + u.RealName + " 会员到期日：" + u.LastTime.ToString("yyyy年MM月dd日") + "</span><a style=\"color:white\" href=\"" + Url.Content("~/Default/MyCar") + "\"><span class='login'>车源管理</span></a>&nbsp;<a style=\"color:white\" onclick=\"PwdEdit();\"><span class='login'>修改密码</span></a>&nbsp;<a style=\"color:white\" href=\"" + Url.Content("~/Account/Logout") + "\"><span class='login'>退出</span></a>";
+                }
+            }
+            else
+            {
+                str = "<a class=\"login\"  href=\"" + Url.Content("~/Account/Index") + "\">登录系统</a>";
+            }
+            ViewBag.User = str;
+            
+            //系统配置
+            var title = new Cache.SysSettingCache().Get(Common.FormsTicket.SystemCode);
+            ViewBag.Title = title.SystemName;
+            ViewBag.HomeLogo = title.HomeLogo == null ? "" : new Common.FileHelper().GetFileUrl(title.HomeLogo, Common.FileConfig.OtherPhotoPath, this.HttpContext);
+            ViewBag.FootLogo = title.FootLogo == null ? "" : new Common.FileHelper().GetFileUrl(title.FootLogo, Common.FileConfig.OtherPhotoPath, this.HttpContext);
+
+        }
+        /// <summary>
+        /// 公共信息
+        /// </summary>
+        public void GetCommon()
+        {
+            SetUser();
+            var typeItem = UserControl.SelectItem.CarTypeItem(0, true);
+            var BrandItem = UserControl.SelectItem.CarBrandItem(0, true);
+            var SeriesItem = UserControl.SelectItem.CarSeriesItem(0, 0, true);
+            var Transmission = Common.EnumHelper.GetEnumItem<Common.EnumModel.ETransmission>(0, true);
+            ViewBag.TypeItem = typeItem;
+            ViewBag.BrandItem = BrandItem;
+            ViewBag.SeriesItem = SeriesItem;
+            ViewBag.Transmission = Transmission;
+            
+            #region 头部分类信息
+            var carCache = new Cache.CarTypeCache().Get(Common.FormsTicket.SystemCode);
+            var tempInfo = new List<Temp>();
+            var Series = new Cache.CarSeriesCache();
+            #region 热门搜索
+            var hot = new Provider.SysHotSearchProvider().GetList();
+            var brand = new List<Models.HotSearchModels.CarBrand>();
+            var series = new List<Models.HotSearchModels.CarSeries>();
+            #endregion
+            foreach (var item in new Cache.CarBrandCache().Get(Common.FormsTicket.SystemCode).OrderBy(c=>c.Initial))
+            {
+                foreach (var se in Series.Get(item.Id))
+                {
+                    tempInfo.Add(new Temp
+                    {
+                        BrandId = item.Id,
+                        BrandName = item.BrandName,
+                        SericeId = se.Id,
+                        SericeName = se.SeriesName,
+                        TypeId = se.TypeId
+                    });
+                }
+                if (hot.FirstOrDefault(c => c.SearchId == item.Id) != null)
+                {
+                    series = new List<Models.HotSearchModels.CarSeries>();
+                    foreach (var se in Series.Get(item.Id))
+                    {
+                        var temp = hot.Where(c => c.ParentId == item.Id);
+                        if (temp.FirstOrDefault(c => c.SearchId == se.Id) != null)
+                        {
+                            series.Add(new Models.HotSearchModels.CarSeries {
+                                SeriesId=se.Id,
+                                SeriesName=se.SeriesName
+                            });
+                        }
+                    }
+                    brand.Add(new Models.HotSearchModels.CarBrand {
+                        BrandId=item.Id,
+                        BrandhName=item.BrandName,
+                        info=series
+                    });
+                }
+            }
+            ViewBag.Hot = brand;
+            var list = new List<Models.DefaultModels.CarType>();
+            var info = new List<Models.DefaultModels.TypeInfo>();
+            int index = 1;
+            long BrandId = 0;
+            var BrandName = "";
+            foreach (var item in carCache)
+            {
+                info = new List<Models.DefaultModels.TypeInfo>();
+                index = 1;
+                BrandId = 0;
+                BrandName = "";
+                foreach (var bs in tempInfo.Where(c => c.TypeId == item.Id))
+                {
+                    info.Add(new Models.DefaultModels.TypeInfo
+                    {
+                        Id = bs.SericeId,
+                        SericeName = bs.SericeName,
+                        ParentId=bs.BrandId,
+                        Sort = index
+                    });
+                    index++;
+                    BrandId = bs.BrandId;
+                    BrandName = bs.BrandName;
+                }
+                if (BrandId != 0)
+                {
+                    info.Add(new Models.DefaultModels.TypeInfo
+                    {
+                        Id = BrandId,
+                        SericeName = BrandName,
+                        Sort = 0
+                    });
+                }
+                list.Add(new Models.DefaultModels.CarType
+                {
+                    Id = item.Id,
+                    TypeName = item.TypeName,
+                    TypeInfo = info.OrderBy(c => c.Sort)
+                });
+            }
+            ViewBag.TypeList = list;
+            #endregion
+        }
+        public class Temp
+        {
+            public long BrandId { get; set; }
+            public string BrandName { get; set; }
+            public long SericeId { get; set; }
+            public string SericeName { get; set; }
+            public long TypeId { get; set; }
+        }
+        #endregion
+
+        #region 常用表格
+
+        public ActionResult File(long? Id)
+        {
+            GetCommon();
+            var list = new Provider.SysFileProvider().GetList();
+            var model = new List<Models.SysFileModels.SysFileModel>();
+            foreach (var item in list)
+            {
+                model.Add(new Models.SysFileModels.SysFileModel
+                {
+                    Id = item.Id,
+                    FileName=item.FileName,
+                    FilePath = new Common.FileHelper().GetFileUrl(item.FilePath, Common.FileConfig.FilePath, this.HttpContext),
+                });
+            }
+            return View(model);
+        }
+        #endregion
+    }
+}

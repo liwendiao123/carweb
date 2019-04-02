@@ -1,0 +1,133 @@
+﻿
+<!DOCTYPE html>
+
+@model UCMS.WebSite.Models.DefaultModels.CarInfoModel
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>二手车信息网</title>
+    <style>
+        .iLfet{width:610px;
+               float:left;
+        }
+        .bigImg img{
+            width:600px;    border: 1px solid #093365;
+        }
+        .smallImg img {
+            width: 94px;
+            height: 75px;
+            margin-top: 10px; border: 1px solid #093365;
+        }
+        .iRight{
+            width:305px;
+               float:left;
+               margin-left:10px;
+               padding-left:10px;
+        }
+        .contacts
+        {
+            width:100%;
+            padding:10px;background-color: #f9f9f9;
+        }
+        .contacts span{
+            display:block;
+            line-height:24px;
+        }
+    .tableList1 {
+        width: 100%;
+        font-size: 14px;
+    }
+
+        .tableList1 tbody tr {
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .tableList1 th {
+            text-align:right;    
+            color: #3366aa;
+        }
+
+        .tableList1 td {
+            height: 35px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    @Html.Partial("_Top")
+    <div class="pContent"> 
+        <div style="padding:20px;width: 960px;">
+            <div class="iLfet">
+                <div class="bigImg">
+                    <img id="bigImg" src="@Model.PhotoURL" />
+                </div>
+                <div class="smallImg">
+                    <span onmousemove="javascript:document.getElementById('bigImg').src = '@Model.PhotoURL'">
+                        <img src="@Model.PhotoURL" />
+                    </span>
+                    @foreach (var item in Model.Photo)
+                    {
+                        <span onmousemove="javascript:document.getElementById('bigImg').src = '@item.URL'">
+                            <img src="@item.URL"/>
+                        </span>
+                    }
+                </div>
+            </div>
+            <div class="iRight">
+                <div>
+                    <h4>@Html.Raw(Model.BrandName+Model.SeriesName+Model.CarName)</h4>
+                </div>
+                <div class="contacts">
+                    <span>售价：<font color="red">@Model.RetailPrice 万元 @Model.IsRepay</font></span>
+                    <span>编号：@Model.CarNo</span>
+                    @Html.Raw(Model.Contact)
+                </div>
+                <div>
+                    <table class="tableList1">
+                        <tbody>
+                            <tr>
+                                <th>上牌日期：</th>
+                                <td>@Html.Raw(Model.LicenseTime.ToString("yyyy年MM月"))</td>
+                                <th>车辆车型：</th>
+                                <td>@Model.TypeName</td>
+                            </tr>
+                            <tr>
+                                <th>车辆产地：</th>
+                                <td>@Model.ProductAddress</td>
+                                <th>车辆颜色：</th>
+                                <td>@Model.CarColor</td>
+                            </tr>
+                            <tr>
+                                <th>燃      料：</th>
+                                <td>@Model.Fuel</td>
+                                <th>排 气 量：</th>
+                                <td>@Model.SweptVolume T</td>
+                            </tr>
+                            <tr>
+                                <th>变 速 器：</th>
+                                <td>@Model.Transmission</td>
+                                <th>表显里程：</th>
+                                <td>@Model.Odometer</td>
+                            </tr>
+                            <tr>
+                                <th>排放标准：</th>
+                                <td>@Model.EmissionStandards</td>
+                                <th>发布日期：</th>
+                                <td>@Html.Raw(Model.CreateTime.ToString("yyyy-MM-dd"))</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        <span style="width:82px;color: #3366aa;text-align:right;font-weight:bold;">车况说明：</span>
+                        @Model.Remark
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pPage" id="mypager"></div>
+    @Html.Partial("_Foot")
+</body>
+</html>

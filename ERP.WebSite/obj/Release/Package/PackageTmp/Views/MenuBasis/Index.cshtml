@@ -1,0 +1,226 @@
+﻿
+@{
+//Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>菜单设置</title>
+</head>
+<body>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget box light-grey">
+                <div class="widget-title">
+                    <div class="actions">
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="Add()"><i class="icon-pencil"></i>&nbsp;新增</a>
+                        <a class="btn btn-danger" href="javascript:void(0)" onclick="Delete()"><i class="icon-trash"></i>&nbsp;删除</a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="row-fluid">
+                        <form class="form-horizontal" action="javascript:void(0)">
+                            <div class="control-group">
+                                <div class="controls controls-cus">
+                                    <input id="txtSearch" type="text" class="input-xlarge"  placeholder="请输入菜单名称" />
+                                    <a id="gritter-remove-all" class="btn btn-info" href="javascript:void(0)" onclick="PageClick(1)"><i class="icon-search"></i>&nbsp;搜索</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table-bordered table table-striped table-hover" id="tabInfo">
+                        <thead>
+                            <tr class="widget-title1">
+                                <th style="width: 8px;"><input type="checkbox" class="group-checkable" onclick="SelectAll(this)" /></th>
+                                <th class="hidden-480">排序号</th>
+                                <th class="hidden-480">菜单名称</th>
+                                <th class="hidden-480">样式</th>
+                                <th class="hidden-480">控制器</th>
+                                <th class="hidden-480">Action</th>
+                                @*<th class="hidden-480">上级菜单</th>*@
+                                <th style="width: 120px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="10" style="text-align:center">
+                                    加载中。。。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row-fluid" id="mypager">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            PageClick(1);
+        });
+        function controller() {
+            return '@Url.Content("~/Sys/MenuBasis/")';
+        }
+        function PageClick(pageIndex, pageSize)
+        {
+            erp.loading();
+            pageSize = pageSize == undefined ? 10 : pageSize;
+            var search = $("#txtSearch").val();
+            var param = {};
+            param["page"] = pageIndex;
+            param["rows"] = pageSize;
+            param["search"] = search;
+
+            $.ajax({
+                url: controller()+"GetList",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    var json = result;
+                    var Html = "";
+                    if (json.Data != undefined && json.Data.length > 0) {
+                        $(json.Data).each(function (i, item) {
+                            Html += "<tr class=\"odd gradeX\">";
+                            Html += "<td>";
+                            Html += '<input id="checkedId" name="checkedId" type="checkbox" value="' + item.Id + '">';
+                            Html += "</td>";
+                            Html += "<td>" + item.MenuSort + "</td>";
+                            Html += "<td>" + item.MenuName + "</td>";
+                            Html += "<td>" + item.MenuIcon + "</td>";
+                            Html += "<td>" + item.ControllerName + "</td>";
+                            Html += "<td>" + item.ActionName + "</td>";
+                            //Html += "<td>" + item.ParentId + "</td>";
+                            if (item.ParentId == '9999') {
+                                Html += "<td style='text-align:center'><a href=\"javascript:void(0)\" onclick=\"Add('" + item.Id + "')\">修改</a></td>";
+                            }
+                            else {
+                                Html += "<td style='text-align:center'><a href=\"javascript:void(0)\" onclick=\"Add('" + item.Id + "')\">修改</a> | <a href=\"javascript:void(0)\" onclick=\"Operate('" + item.Id + "')\">操作码</a></td>";
+                            }
+                            Html += "</tr>";
+                        });
+                    }
+                    else {
+                        Html += '<tr><td colspan="10" style="text-align:center">暂无数据</td></tr>';
+                    }
+                    $("#tabInfo tbody").html(Html);
+                    $("#mypager").pager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: pageSize, buttonClickCallback: PageClick });
+                }
+            });
+        }
+        
+        function Add(MenuId) {
+            MenuId = MenuId == undefined ? "" : MenuId;
+            var submit = function (v, h, f) {
+                if (v == true) {
+                    var Id = h.find("#Id").val();
+                    var MenuName = h.find("#MenuName").val();
+                    var MenuIcon = h.find("#MenuIcon").val();
+                    var ControllerName = h.find("#ControllerName").val();
+                    var ActionName = h.find("#ActionName").val();
+                    var MenuSort = h.find("#MenuSort").val();
+                    var ParentId = h.find("#ParentId").val();
+                    h.find('.errorBlock').hide('fast', function () { $(this).remove(); });
+                    if (MenuName == undefined || MenuName == "") {
+                        $('<div class="errorBlock" style="display: none;">请输入菜单名称！</div>').prependTo(h).show('slow');
+                        return false;
+                    }
+                    if (MenuSort != undefined && MenuSort != "") {
+                        var reg = /(^[1-9]\d*(\.\d{1,9})?$)|(^0(\.\d{1,9})?$)/;
+                        if (!reg.test(MenuSort)) {
+                            $('<div class="errorBlock" style="display: none;">排序只能为数字！</div>').prependTo(h).show('slow');
+                            return false;
+                        }
+                    }
+                    var param = {};
+                    param["MenuName"] = MenuName;
+                    param["MenuIcon"] = MenuIcon;
+                    param["ControllerName"] = ControllerName;
+                    param["ActionName"] = ActionName;
+                    param["MenuSort"] = MenuSort;
+                    param["ParentId"] = ParentId;
+                    param["Id"] = Id;
+                    $.ajax({
+                        url: controller() + "Save",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                $.jBox.tip("操作成功了", "success");
+                                PageClick(1, 10);
+                                return true;
+                            } else {
+                                $.jBox.tip("操作失败了", "error");
+                            }
+                        }
+                    });
+                    return true;
+                } else {
+                    return true;
+                }
+            }
+            $.jBox.open("get:"+controller()+"Create?MenuId="+MenuId, "编辑菜单", 600, 300, { buttons: { '确定': true, '关闭': false }, submit: submit });
+        }
+        //操作码
+        function Operate(MenuId) {
+            MenuId = MenuId == undefined ? "" : MenuId;
+            $.jBox.open("get:"+controller()+"OperateList?MenuId=" + MenuId, "操作码", 1024, 600, {
+                buttons: { '关闭': false }, submit: function (v, h, f) {
+                    return true;
+                }
+            });
+        }
+        
+        function SelectAll(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", true);
+            } else {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", false);
+            }
+        }
+        function Delete() {
+            var items = [];
+            $("#tabInfo").children("tbody").find("input[type='checkbox']").each(function (i, item) {
+                var flag = $(item).attr("checked");
+                if (flag || flag == "checked") {
+                    var cateNum = $(item).val();
+                    items.push(cateNum);
+                }
+            });
+            if (items.length == 0) {
+                $.jBox.tip("请选择要删除的数据", "warn");
+                return false;
+            }
+
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+
+                    var param = {};
+                    param["checkedId"] = items.join(",");
+
+                    $.ajax({
+                        url: controller() + "Delete",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                PageClick(1);
+                                $.jBox.tip("删除成功！", "success");
+                            } else {
+                                $.jBox.tip("删除失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要做删除操作？", "提示", submit);
+        }
+    </script>
+</body>
+</html>

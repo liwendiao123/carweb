@@ -1,0 +1,135 @@
+﻿
+@{
+    Layout = null;
+}
+@model IEnumerable<UCMS.WebSite.Models.UserBasisModels.UserRoleModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>用户角色</title>
+</head>
+<body>
+    @Html.Hidden("UserId", ViewBag.UserId as string)
+    <div class="widget-body">
+        <table class="table-bordered table table-striped table-hover" id="tabEdit">
+            <thead>
+                <tr class="widget-title1">
+                    <th style="width: 8px;">
+                        <input type="checkbox" class="group-checkable" onclick="SelectAll1(this)" />
+                    </th>
+                    <th>角色名称</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count() > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.CheckBox("cu_" + item.RoleId, item.IsSelect, new { @value = item.Id, change = "default",onchange= "Change(this)" })
+                            </td>
+                            <td>@item.RoleName</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10" style="text-align:center">
+                            暂无数据。。。
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function () {
+        });
+        function Change(inp)
+        {
+            InputChange($(inp));
+        }
+        function SelectAll1(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                CheckedChange($("#tabEdit").find("input[type='checkbox']"), true)
+            } else {
+                CheckedChange($("#tabEdit").find("input[type='checkbox']"), false)
+            }
+        }
+        //选中不选中
+        function CheckedChange(all, bool) {
+            $.each(all, function (i, val) {
+                var change = $(this);
+                //本身就已经是当前状态就不作记录变更
+                if (bool)
+                {
+                    if (change.attr("checked") != "checked")
+                    {
+                        //记录变更
+                        InputChange(change)
+                    }
+                }
+                else
+                {
+                    if (change.attr("checked") == "checked") {
+                        //记录变更
+                        InputChange(change)
+                    }
+                }
+                change.attr("checked", bool);
+            });
+        }
+        //记录变更
+        function InputChange(change)
+        {
+            if (change.attr("change") == "default") {
+                change.attr("change", "change")
+            }
+            else {
+                change.attr("change", "default")
+            }
+        }
+
+        function SaveUserRole()
+        {
+            var pData = "";
+            $.each($("#tabEdit").find("input[type='checkbox']"), function (i, val) {
+                //在这处理修改后的权限   分 授权和取消权限
+                var cb = $(this);
+                if (cb.attr("change") == ("change")) {
+                    //menuid_明细id_授权和取消权限
+                    var temp = ',' + cb.attr("id") + '_' + cb.attr("value");
+                    pData += temp;
+                }
+            });
+            if (pData != "") {
+                var param = {};
+                param["checkedId"] = pData;
+                param["UserId"] = $("#UserId").attr("value");
+                $.ajax({
+                    url:controller()+"SaveUserRole",
+                    data: param,
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        if (result.d == "1") {
+                            $.jBox.tip("设置成功！", "success");
+                            $.jBox.close();
+                        } else {
+                            $.jBox.tip("设置失败！", "error");
+                        }
+                    }
+                });
+            }
+        }
+        function controller() {
+            return '@Url.Content("~/Sys/UserBasis/")';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebSite.Models.RoleBasisModels.RoleBasisModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+
+        @using (Html.BeginForm("Save", "RoleBasis", FormMethod.Post, new { @id = "documentForm", @name = "documentForm" }))
+        {
+            @Html.HiddenFor(c => c.Id)
+            <table class="formtab_user">
+                <tbody>
+                    <tr>
+                        <th>角色编码：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.RoleCode, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>角色名称：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.RoleName, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.RoleSort, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <script src="~/Theme/js/jquery.validate.js"></script>
+    <script src="~/Theme/js/jquery.form.js"></script>
+    <script type="text/javascript">
+        function controller() {
+            return '@Url.Content("~/Sys/RoleBasis/")';
+        }
+        function SaveOperate()
+        {
+            if (validateForm()) {
+                $("#documentForm").ajaxSubmit({
+                    success: function (data) {
+                        if (data.d=="1") {
+                            $.jBox.close();
+                            window.location.href = controller()+"Index";
+                            $.jBox.tip("保存成功！", "success");
+                        } else {
+                            $.jBox.tip("保存失败！", "error");
+                        }
+                    }
+                });
+            }
+        }
+        function validateForm() {
+            return $("#documentForm").validate({
+                rules: {
+                    RoleCode: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    RoleName: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    RoleSort: {
+                        number: true
+                    }
+                },
+                messages: {
+                    RoleCode: {
+                        required: "请输入角色编码",
+                        maxlength: $.validator.format("角色编码不能大于{0}个字符")
+                    },
+                    RoleName: {
+                        required: "请输入角色名称",
+                        maxlength: $.validator.format("角色名称不能大于{0}个字符")
+                    },
+                    RoleSort: {
+                        number: "请输入数字"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                }
+            }).form();
+        }
+    </script>
+</body>
+</html>

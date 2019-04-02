@@ -1,0 +1,214 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebSite.Models.UserBasisModels.UserBasisModel
+
+    <div class="tab-pane active" id="widget_tab1">
+        @using (Html.BeginForm("Save", "UserBasis", FormMethod.Post, new { @id = "documentForm", @name = "documentForm" }))
+        {
+            @Html.HiddenFor(c => c.Id)
+            <table class="formtab_user">
+                <tbody>
+                    <tr>
+                        <th>账号：</th>
+                        <td>
+                            @if (string.IsNullOrEmpty(Model.Id))
+                            {
+                                <input type="text" class="input-medium" placeholder= "系统生成"  disabled = ""/>
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(c => c.LoginCode, new { @class = "input-medium", disabled = "" })
+                            }
+                        </td>
+                        <th><font color="red">* </font>用户名：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.RealName, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    @if (string.IsNullOrEmpty(Model.Id))
+                    {
+                        <tr>
+                            <th><font color="red">* </font>密码：</th>
+                            <td>
+                                @Html.PasswordFor(c => c.Passwords, new { @class = "input-medium" })
+                            </td>
+                            <th><font color="red">* </font>确实密码：</th>
+                            <td>
+                                @Html.PasswordFor(c => c.Repeat, new { @class = "input-medium" })
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>性别：</th>
+                        <td>
+                            <label>
+                                @Html.RadioButton("Sex", 1)<lable style="color:blue"> 男</lable>
+                            </label>
+                            <label>
+                                @Html.RadioButton("Sex", 0)<lable style="color:Red"> 女</lable>
+                            </label>
+                        </td>
+                        <th><font color="red">* </font>手机：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.Mobile, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><font color="red">* </font>QQ：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.QQ, new { @class = "input-medium" })
+                        </td>
+                        <th><font color="red">* </font>微信：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.Weixin, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>图像：</th>
+                        <td>
+                            <input type="button" value="选择图片" onclick="javascript: $('#Photo').trigger('click');" />
+                            <img style="width:100px;height:110px;" src="@Model.Photo" />
+                            <input type="file" style="display:none" id="Photo" name="Photo" onchange="javascript:setImagePreview(this);" />
+                        </td>
+                        <th><font color="red">* </font>过期日期：</th>
+                        <td>
+                            @Html.TextBox("LastTime", Model.LastTime.ToString("yyyy-MM-dd"), new { @class = "input-medium", onFocus = "WdatePicker({isShowClear:true,readOnly:true,dateFmt:'yyyy-MM-dd'})" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><font color="red">* </font>备注：</th>
+                        <td colspan="3">
+                            @Html.TextAreaFor(c => c.Remark,new { @style="width:335px;"})
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <script src="~/Theme/js/jquery.validate.js"></script>
+    <script src="~/Theme/js/jquery.form.js"></script>
+    <script type="text/javascript">
+        function controller() {
+            return '@Url.Content("~/Sys/UserBasis/")';
+        }
+        function Save()
+        {
+            if (validateForm()) {
+                $("#documentForm").ajaxSubmit({
+                    success: function (data) {
+                        if (data.d=="1") {
+                            $.jBox.close();
+                            $.jBox.tip("保存成功！", "success");
+                            PageClick(1);
+                        } else {
+                            $.jBox.tip("保存失败！", "error");
+                        }
+                    }
+                });
+            }
+        }
+        //预览图片
+        function setImagePreview(avalue) {
+            var docObj = $(avalue);
+            //处理合法性
+            var path = docObj.val();
+            if (!path) {
+                docObj.prev().attr("src", "Theme/img/NotPic.jpg");
+                return false;
+            }
+            var ext = path.substring(path.lastIndexOf('.'), path.length).toUpperCase();
+            if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG' && ext !== '.GIF') {
+                $.jBox.tip("请上传格式 JPG、JPEG、PNG、GIF 的图片", "warn");
+                file.attr("value", "");
+                return false;
+            }
+            //TODO:不支持ie
+            //var size = (docObj[0].files[0].size / 1024).toFixed(2);//kb
+            //if (size > 2048) {
+            //    $.jBox.tip("图片不能大于2m", "warn");
+            //    docObj.attr("value", "");
+            //    return false;
+            //}
+
+            if (docObj[0].files && docObj[0].files[0]) {
+                //imgObjPreview.src = docObj.files[0].getAsDataURL();
+                //火狐7以上版本不能用上面的getAsDataURL()方式获取，需要一下方式
+                docObj.prev().attr("src", "" + window.URL.createObjectURL(docObj[0].files[0]) + "");
+            }
+            else {
+                //IE下，使用滤镜
+                //changes时可以用这种方式 $(this).select();
+                //ie获取不到本地浏览图片  后续在处理
+                docObj.select();
+                window.parent.document.body.focus();
+                var realpath = document.selection.createRange().text;
+                docObj.prev().css("filter", "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',src=\"" + realpath + "\",sizingMethod=scale)");
+            }
+            return true;
+        }
+        //添加自定义方法
+        $.validator.addMethod('MobileValiddate', function (value, element) {
+            if (value) {
+                if (!(/^1[345678]\d{9}$/.test(value))) {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+            return true;
+        }, "请输入有效的手机号码！");
+        function validateForm() {
+            return $("#documentForm").validate({
+                rules: {
+                    Passwords: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    Repeat: {
+                        equalTo: "#Passwords"
+                    },
+                    RealName: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    Weixin: {
+                        required: true,
+                        maxlength: 30
+                    },
+                    QQ: {
+                        required: true,
+                        number: true
+                    },
+                    Mobile: "MobileValiddate"
+                },
+                messages: {
+                    Passwords: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    Repeat: {
+                        equalTo: "两次密码输入不一致。",
+                    },
+                    QQ: {
+                        required: "必填项",
+                        number: "请输入数字"
+                    },
+                    RealName: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    Weixin: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                }
+            }).form();
+        }
+    </script>

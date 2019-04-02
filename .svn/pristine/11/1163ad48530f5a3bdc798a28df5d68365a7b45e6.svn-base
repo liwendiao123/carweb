@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link href="~/Theme/plugins/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Theme/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/Theme/css/style.css" rel="stylesheet" />
+    <link href="~/Theme/css/style-responsive.css" rel="stylesheet" />
+    <link href="~/Theme/css/default.css" rel="stylesheet" />
+    <link href="~/Theme/plugins/jBox/Skins/Purple/jbox.css" rel="stylesheet" />
+    @RenderSection("css", false)
+    <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
+    <script src="~/Theme/plugins/bootstrap/js/bootstrap.js"></script>
+    <script src="~/Theme/plugins/jBox/jquery.jBox-2.3.min.js"></script>
+    <script src="~/Theme/js/jquery.jUploader-1.01.min.js"></script>
+
+    <script src="~/Home/Js"></script>
+    <script src="~/Theme/js/ERP.Common.js"></script>
+
+    @RenderSection("js", false)
+    
+</head>
+<body>
+    @RenderBody()
+    <div id="background" class="background" style="display: none;">
+    </div>
+    <div id="progressBar" class="progressBar" style="display: none;">
+        数据加载中，请稍等...</div>
+    <script>
+        function PwdEdit() {
+            $.jBox.open("get:/Home/ChangePwd", "修改密码", 350, 200, {
+                buttons: { "确定": true, "关闭": false }, submit: function (v, h, f) {
+                    if (v == true) {
+                        var currentPassword = h.find("#currentPassword").val();
+                        var passWord = h.find("#txtPassword").val();
+                        var confirm = h.find("#txtConfirm").val();
+
+                        if (currentPassword == undefined || currentPassword == "") {
+                            $.jBox.tip("请输入当前密码", "warn");
+                            return false;
+                        }
+                        if (passWord == undefined || passWord == "") {
+                            $.jBox.tip("请输入密码", "warn");
+                            return false;
+                        }
+                        if (confirm == undefined || confirm == "") {
+                            $.jBox.tip("请输入确认密码", "warn");
+                            return false;
+                        }
+                        if (passWord != confirm) {
+                            $.jBox.tip("密码和确认密码不一致", "warn");
+                            return false;
+                        }
+                        var param = {};
+                        param["currentPassword"] = currentPassword;
+                        param["PassWord"] = passWord;
+
+                        $.ajax({
+                            url: "/Home/ChangePwd",
+                            data: param,
+                            type: "post",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result.d == "1") {
+                                    $.jBox.tip("修改成功", "success");
+
+                                } else {
+                                    $.jBox.tip("修改失败，当前密码不正确！", "error");
+
+                                }
+                            }
+                        });
+                        return true;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+﻿
+<link href="~/Theme/css/home.css" rel="stylesheet" />
+<div class="pTop">
+    <div class="tUp">
+        <div style="width:1440px;height:144px;background:url(@ViewBag.HomeLogo);margin-right: auto;margin-left: -720px;position: relative;
+    left: 50%;">
+            @*<div style="width:1440px;height:144px;background:url(/Theme/img/1c.jpg);margin-left: auto;margin-right: auto;"></div>*@
+            <h2 style="color: #ff6600;font-weight: bold;letter-spacing: 10px;display: inline-block;margin-top: 65px;margin-left: -600px;">@ViewBag.Title</h2>
+            <h3 style="color: #f5f5f5;margin: 0px;margin-left: 862px;margin-top: -20px;font-weight: bold;letter-spacing: 10px;">合作共赢</h3>
+        </div>
+    </div>
+    <div class="tConten">
+        <div class="tMenu">
+            <a href="~/Default/index" class="here">首页</a>
+            <a onclick="PageClick(1);">二手车信息</a>
+            <a href="~/Default/File">常用表格</a>
+            <a href="~/Default/Notice">通知公告</a>
+            <div>
+                @Html.Raw(ViewBag.User as string)
+            </div>
+        </div>
+    </div>
+    <div class="tBotom">
+        <div class="dTop" id="dTop">
+            <div class="here" onmouseover="MenuBlur(this,'123')">热门搜索</div>
+            @{
+                var list = ViewBag.TypeList as List<UCMS.WebSite.Models.DefaultModels.CarType>;
+                foreach (var item in list)
+                {
+                    <div onmouseover="MenuBlur(this,'@item.Id')">@item.TypeName</div>
+                }
+            }
+        </div>
+        <div class="dContent show" id="123">
+            <div>
+                @foreach (var item in ViewBag.Hot as List<UCMS.WebSite.Models.HotSearchModels.CarBrand>)
+                {
+                    <a onclick="BrandClick('@item.BrandId')">@item.BrandhName</a>
+                    foreach (var se in item.info)
+                    {
+
+                        <a onclick="SericeClick('@se.SeriesId','@item.BrandId')">@se.SeriesName</a>
+                    }
+                }
+            </div>
+        </div>
+        @foreach (var t in list)
+        {
+            <div class="dContent hide" id="@t.Id">
+                <div>
+                    @foreach (var item in t.TypeInfo)
+                    {
+                        if (item.Sort == 0)
+                        {
+                            <a onclick="BrandClick('@item.Id')">@item.SericeName</a>
+                        }
+                        else
+                        {
+                            <a onclick="SericeClick('@item.Id','@item.ParentId')">@item.SericeName</a>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    <div class="tList">
+        <div class="tab-pane active" id="widget_tab1" style="border: solid 1px #ccc9c9;">
+            <form id="documentForm" name="documentForm" method="post" action="/Default/CarList" enctype="multipart/form-data">
+                <table class="formtab_user">
+                    <tbody>
+                        <tr>
+                            <th>车型：</th>
+                            <td>
+                                @Html.DropDownList("TypeId", ViewBag.TypeItem as List<SelectListItem>)
+                            </td>
+                            <th>价格：</th>
+                            <td>
+                                <input type="text" name="RetailPrice1" id="RetailPrice1" />-
+                                <input type="text" name="RetailPrice2" id="RetailPrice2" />万
+                            </td>
+                            <th>变速器：</th>
+                            <td>
+                                @Html.DropDownList("Transmission", ViewBag.Transmission as List<SelectListItem>)
+                            </td>
+                            <th>编号：</th>
+                            <td>
+                                <input type="text" name="CarNo" id="CarNo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>品牌：</th>
+                            <td>
+                                @Html.DropDownList("BrandId", ViewBag.BrandItem as List<SelectListItem>)
+                                @Html.DropDownList("SeriesId", ViewBag.SeriesItem as List<SelectListItem>)
+                            </td>
+                            <th>上牌日期：</th>
+                            <td>
+                                @Html.TextBox("LicenseTime1", "", new { @class = "Wdate", onFocus = "WdatePicker({isShowClear:true,readOnly:true,dateFmt:'yyyy-MM'})" })
+                                -
+                                @Html.TextBox("LicenseTime2", "", new { @class = "Wdate", onFocus = "WdatePicker({isShowClear:true,readOnly:true,dateFmt:'yyyy-MM'})" })
+                            </td>
+                            <th>关键字：</th>
+                            <td>
+                                <input type="text" name="Search" id="Search" />
+                            </td>
+                            <th></th>
+                            <td>
+                                <span id="keyList" style="border: solid 1px #ccc5cc;line-height: 25px;padding: 3px 15px 3px 15px;display: inline-block;cursor: pointer;border-radius: 4px;background-color: #f60;color:white" onclick="PageClick(1)">搜索</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <a id="skip" href="#" target="_blank"></a>
+    </div>
+</div>
+<script src="~/Theme/plugins/My97DatePicker/WdatePicker.js"></script>
+<script>
+    $(document).ready(function () {
+        //品牌
+        $("#BrandId").change(function () {
+            var BrandId = $("#BrandId").val();
+            BrandChange(BrandId);
+        });
+    });
+    function BrandChange(BrandId) {
+        if (BrandId != undefined && BrandId != "") {
+            var param = {};
+            param["Id"] = BrandId;
+            $.ajax({
+                url: "@Url.Content("~/Car/CarInfo/")GetItem",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    $("#SeriesId").empty();
+                    $.each(result, function (index, item) {
+                        $("#SeriesId").append("<option value=\"" + item.Value + "\">" + item.Text + "</option>");
+                    });
+                }
+            });
+        }
+        else {
+            $("#SeriesId").empty();
+            $("#SeriesId").append("<option>--请选择--</option>");
+        }
+    }
+    function CarInfo(href)
+    {
+        $("#skip").attr("href", "@Url.Content("~/Default/CarInfo/")" + href)
+        document.getElementById("skip").click();
+    }
+    function TypeClick(typeId) {
+        $("#TypeId").val(typeId);
+        SeriesId1 = "";
+        PageClick(1);
+    }
+    function BrandClick(BrandId) {
+        $("#BrandId").val(BrandId);
+        BrandChange(BrandId);
+        SeriesId1 = "";
+        PageClick(1);
+    }
+    var SeriesId1 = "";
+    function SericeClick(series, brand) {
+        $("#BrandId").val(brand);
+        BrandChange(brand);
+        SeriesId1 = series;
+        PageClick(1);
+    }
+    //排序 默认4 1价格升序 2价格降序 3时间升序 4时间降序
+    var sort = 4;
+    function Sort(ta, st) {
+        if (st==1) {
+            if (sort == 2) {
+                sort = 1;
+                PageClick(1);
+            }
+            else {
+                sort = 2;
+                PageClick(1);
+            }
+        }
+        else {
+            if (sort == 4) {
+                sort = 3;
+                PageClick(1);
+            }
+            else {
+                sort = 4;
+                PageClick(1);
+            }
+        }
+    }
+    function PageClick(pageIndex) {
+        erp.loading();
+        var TypeId = $("#TypeId").val();
+        var RetailPrice1 = $("#RetailPrice1").val();
+        var RetailPrice2 = $("#RetailPrice2").val();
+        var Transmission = $("#Transmission").val();
+        var CarNo = $("#CarNo").val();
+        var LicenseTime1 = $("#LicenseTime1").val();
+        var LicenseTime2 = $("#LicenseTime2").val();
+        var Search = $("#Search").val();
+        var param = {};
+        param["page"] = pageIndex;
+        param["rows"] = 50;
+        param["TypeId"] = TypeId;
+        param["RetailPrice1"] = RetailPrice1;
+        param["RetailPrice2"] = RetailPrice2;
+        param["Transmission"] = Transmission;
+        param["CarNo"] = CarNo;
+        param["LicenseTime1"] = LicenseTime1;
+        param["LicenseTime2"] = LicenseTime2;
+        param["Search"] = Search;
+        var BrandId = $("#BrandId").val();
+        param["BrandId"] = BrandId;
+        if (SeriesId1 != "")
+        {
+            param["SeriesId"] = SeriesId1;
+        }
+        else
+        {
+            param["SeriesId"] = $("#SeriesId").val();
+        }
+        param["Sort"] = sort;
+        $.ajax({
+            url: "@Url.Content("~/Default/")CarList",
+            data: param,
+            type: "post",
+            dataType: "json",
+            success: function (result) {
+                var json = result;
+                var Html = "";
+                Html += "<div><div class='sort'><span>排序方式：</span>";
+                if (sort == 1)
+                {
+                    Html += "<a onclick='Sort(this,1)'>价格</a>";
+                    Html += "<a onclick='Sort(this,2)'>时间</a>";
+                }
+                else if (sort == 2) {
+                    Html += "<a onclick='Sort(this,1)' style=\"color:red\">价格</a>";
+                    Html += "<a onclick='Sort(this,2)'>时间</a>";
+                }
+                else if (sort == 3) {
+                    Html += "<a onclick='Sort(this,1)'>价格</a>";
+                    Html += "<a onclick='Sort(this,2)'>时间</a>";
+                }
+                else {
+                    Html += "<a onclick='Sort(this,1)'>价格</a>";
+                    Html += "<a onclick='Sort(this,2)' style=\"color:red\">时间</a>";
+                }
+                Html += "</div><table class=\"tableList\"><thead><tr><th>编号</th><th>品牌型号</th><th>车型</th><th>上牌日期</th><th>颜色</th><th>交易报价</th><th>备注</th><th>变速器</th><th>发布日期</th></tr></thead><tbody>";
+                if (json.Data != undefined && json.Data.length > 0) {
+                    $(json.Data).each(function (i, item) {
+                        Html += "<tr onclick=\"CarInfo('" + item.Id + "')\" onmouseover=\"style.backgroundColor='#FCE6BF'\" onmouseout=\"style.backgroundColor='#ffffff'\" style=\"background-color: rgb(255, 255, 255);\">";
+                        Html += "<td>" + item.CarNo + "</td>";
+                        Html += "<td>" + item.BrandName + item.SeriesName + item.CarName + "</td>";
+                        Html += "<td>" + item.TypeName + "</td>";
+                        Html += "<td>" + erp.newDate(item.LicenseTime) + "</td>";
+                        Html += "<td>" + item.CarColor + "</td>";
+                        Html += "<td><font color='red'>" + item.RetailPrice + "</font>万</td>";
+                        Html += "<td>" + item.Remark + "</td>";
+                        Html += "<td>" + erp.GetEnumDesc(ETransmission, item.Transmission) + "</td>";
+                        Html += "<td>" + erp.newDateFormate(item.CreateTime) + "</td>";
+                        Html += "</tr>";
+                    });
+                }
+                else {
+                    Html += '<tr><td colspan="20" style="text-align:center">暂无数据</td></tr>';
+                }
+                Html += "</tbody></table></div>";
+                $(".pContent").html(Html);
+                $("#mypager").mypager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: 50, buttonClickCallback: PageClick });
+            }
+        });
+    }
+        function MenuBlur(od,id) {
+            $("#dTop~div").removeClass("here");
+            $(od).parent().children().removeClass("here");
+            $(od).addClass("here");
+            $(".dContent").css("display","none");
+            $("#" + id).css("display", "block");
+        }
+</script>

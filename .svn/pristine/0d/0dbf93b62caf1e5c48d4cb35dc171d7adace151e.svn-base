@@ -1,0 +1,46 @@
+﻿using EntityFramework.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UCMS.Entitys;
+
+namespace UCMS.Provider
+{
+    public class SysSettingProvider:BaseProvider
+    {
+        public int Edit(SysSetting model)
+        {
+            if (model.Id == 0)
+            {
+                model.Id = Common.PrimaryKey.GetHashCodeID;
+                DB.Set<SysSetting>().Add(model);
+            }
+            else
+            {
+                var line = DB.SysSetting.Where(c => c.Id == model.Id).Update(b => new SysSetting
+                {
+                    TimeStamp = DateTime.Now,
+                    SystemName = model.SystemName,
+                    Contact = model.Contact,
+                    Feeback = model.Feeback
+                });
+                if (!string.IsNullOrEmpty(model.LoginLogo))
+                {
+                    line = DB.SysSetting.Where(c => c.Id == model.Id).Update(b => new SysSetting{LoginLogo = model.LoginLogo});
+                }
+                if (!string.IsNullOrEmpty(model.FootLogo))
+                {
+                    line = DB.SysSetting.Where(c => c.Id == model.Id).Update(b => new SysSetting{ FootLogo = model.FootLogo });
+                }
+                if (!string.IsNullOrEmpty(model.HomeLogo))
+                {
+                    line = DB.SysSetting.Where(c => c.Id == model.Id).Update(b => new SysSetting{ HomeLogo = model.HomeLogo});
+                }
+                return line;
+            }
+            return DB.SaveChanges();
+        }
+    }
+}

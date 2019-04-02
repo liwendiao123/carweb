@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "loading...";
+}
+@section js{
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+            if (actiontpye == "1") {
+                jBox('<div style="line-height: 40px;margin-left:  10px;color:  red;font-weight:  bold;">您的登录已超时或未登录,请重新登录！</div>', {
+                    title: "提示", submit: function (v, h, f) {
+                        window.parent.top.location.href = controller();
+                    }
+                });
+            }            else {
+                window.parent.top.location.href = controller();
+            }
+
+            //art.dialog({
+            //    content: "您的登录已超时或未登录,请重新登录！",
+            //    icon: 'warning',
+            //    lock: true,
+            //    ok: function () {
+            //        this.close();
+            //        window.parent.top.location.href = controller();
+            //    }
+            //});
+        });
+
+        function controller() {
+            return $("#controller").val();
+        }
+
+        function actiontpye() {
+            return $("#actiontpye").val();
+        }
+    </script>
+}
+@Html.Hidden("controller", Url.Content(FormsAuthentication.LoginUrl))
+@Html.Hidden("actiontpye", ViewBag.ActionTpye as string)

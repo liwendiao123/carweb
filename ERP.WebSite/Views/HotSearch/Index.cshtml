@@ -1,0 +1,77 @@
+﻿
+@model IEnumerable<UCMS.WebSite.Models.HotSearchModels.CarBrand>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+    <style>
+        .main{
+            margin:30px 0px 0px 30px;
+        }
+        .series{margin-left:20px;}
+        .series span{
+            display:inline-block;
+        }
+    </style>
+</head>
+<body >
+    <div class="main">       
+         品牌： @Html.DropDownList("BrandId", ViewBag.BrandItem as List<SelectListItem>)
+        @foreach (var item in Model)
+        {
+            if (item.BrandId > 0)
+            { 
+            <div>
+                <div>
+                    <label>
+                        <input type="checkbox" checked="@item.IsSelect" onchange="Change('@item.BrandId','0')"/>  @item.BrandhName
+                    </label>
+                </div>
+                <div class="series">
+                    @foreach (var ser in item.info)
+                    {
+                        <span>
+                            <label>
+                                <input type="checkbox" checked="@ser.IsSelect" onchange="Change('@item.BrandId','@ser.SeriesId')"/> @ser.SeriesName
+                            </label>
+                        </span>
+                    }
+                </div>
+            </div>
+            }
+        }
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".main").css("height", ($(window.parent.document).height() - 150));
+            $(".main").css("overflow-y", "scroll");
+            $("#BrandId").change(function () {
+                location.href = controller() + "/Index?BrandId=" + $(this).val();
+            });
+        });
+        function controller() {
+            return '@Url.Content("~/Sys/HotSearch/")';
+        }
+        function Change(brandId,seriesId)
+        {
+            var param = {};
+            param["BrandId"] = brandId;
+            param["SeriesId"] = seriesId;
+            $.ajax({
+                url: controller() + "Save",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    if (result.d == "1") {
+                        //location.reload()
+                    } else {
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

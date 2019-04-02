@@ -1,0 +1,93 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebSite.Models.CarSeriesModels.CarSeriesModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+        @using (Html.BeginForm("Save", "CarSeries", FormMethod.Post, new { @id = "documentForm", @name = "documentForm" }))
+        {
+            @Html.HiddenFor(c => c.Id)
+            @Html.HiddenFor(c => c.BrandId)
+            <table class="formtab_user">
+                <tbody>
+                    <tr>
+                        <th>车型：</th>
+                        <td>
+                            @Html.DropDownList("TypeId", ViewBag.TypeItem as List<SelectListItem>, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>排序：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.SeriesSort, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>车系名称：</th>
+                        <td>
+                            @Html.TextBoxFor(c => c.SeriesName, new { @class = "input-medium" })
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </div>
+    <script src="~/Theme/js/jquery.validate.js"></script>
+    <script src="~/Theme/js/jquery.form.js"></script>
+    <script type="text/javascript">
+        function controller() {
+            return '@Url.Content("~/Car/CarSeries/")';
+        }
+        function Save()
+        {
+            if (validateForm()) {
+                $("#documentForm").ajaxSubmit({
+                    success: function (data) {
+                        if (data.d=="1") {
+                            $.jBox.close();
+                            window.location.href = controller() + "Index?BrandId=" + $("#BrandId").val();
+                            $.jBox.tip("保存成功！", "success");
+                        } else {
+                            $.jBox.tip("保存失败！", "error");
+                        }
+                    }
+                });
+            }
+        }
+        function validateForm() {
+            return $("#documentForm").validate({
+                rules: {
+                    SeriesName: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    SeriesSort: {
+                        number: true
+                    }
+                },
+                messages: {
+                    SeriesName: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    SeriesSort: {
+                        number: "请输入数字"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                }
+            }).form();
+        }
+    </script>
+</body>
+</html>

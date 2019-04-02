@@ -1,0 +1,352 @@
+﻿@{
+//Layout = null;
+}
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="zh" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="zh" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="zh">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+    <meta charset="utf-8" />
+    <title>@Html.Raw(ViewBag.Title)</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="@Html.Raw(ViewBag.Title)" name="description" />
+    <meta content="@Html.Raw(ViewBag.Title)" name="author" />
+
+    <style>
+        .tab_nav {
+            padding: 0px;
+        }
+
+        .breadcrumb > div {
+            cursor: pointer;
+            padding: 3px;
+            line-height: 25px;
+            display: inline-block;
+            line-height: 25px;
+        }
+
+        .tab .nav_item {
+            border: solid 1px #ccc5cc;
+            line-height: 25px;
+            padding: 3px 5px 3px 10px;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: #EFEFEF;
+            /*background-image: -webkit-gradient(linear, 0 0%, 0 100%, from(#FDFDFD), to(#EAEAEA));*/
+        }
+
+        .item_show {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .item_hide {
+            display: none;
+        }
+
+        .nav_close {
+            margin-left: 3px;
+            padding: 0px 2px 0px 2px;
+        }
+
+            .nav_close:hover {
+                margin-left: 3px;
+                background-color: red;
+                background-color: #e66565;
+                color: white;
+                padding: 0px 2px 0px 2px;
+            }
+
+        #GlobalLanguage {
+            width: auto;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="fixed-top">
+    <div id="header" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="brand" href="javascript:void(0)" style="width: 320px; color: white;" lang_l="lc_title">后台管理系统</a>
+                <a class="btn btn-navbar collapsed" id="main_menu_trigger" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="arrow"></span>
+                </a>
+                <div class="top-nav">
+                    <ul class="nav pull-right" id="top_menu">
+                        <li class="divider-vertical hidden-phone hidden-tablet"></li>
+
+                        <li class="divider-vertical hidden-phone hidden-tablet"></li>
+                        <li>
+                            <a>会员到期日：@ViewBag.LastTime</a>
+                        </li>
+                        <li>
+                            <a href="@Url.Content("~/Default/Index")" style="background-color: #ff6600;">前往首页</a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="icon-user"></i>&nbsp;<hd lang_l="lc_currentUser">当前登录</hd>
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="javascript:void(0)"><i class="icon-user"></i>&nbsp;&nbsp;@Html.Raw(UCMS.Common.FormsTicket.UserName)</a></li>
+                                <li><a href="javascript:void(0)" onclick="Edit();"><i class="icon-wrench"></i>&nbsp;&nbsp;<hd lang_l="lc_upPassword">修改密码</hd></a></li>
+                                <li><a href="@Url.Content("~/Account/Logout")"><i class="icon-key"></i><hd lang_l="lc_loginOut">退出系统</hd></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*@Html.Partial("_Top")*@
+    <div id="container" class="row-fluid">
+        <div id="sidebar" class="nav-collapse collapse">
+            <div class="sidebar-toggler hidden-phone"></div>
+            <ul>
+                @{
+                    var menuList = ViewBag.MenuItem as List<UCMS.Cache.Sys_MenuBasisCache.MenuBasisModel>;
+                    foreach (var item in menuList.Where(c => c.ParentId == UCMS.Common.Constant.LONG_DEFAULT))
+                    {
+                        <li class="has-sub ">
+                            <a href="javascript:void(0);">
+                                <i class="@item.MenuIcon"></i>
+                                <span class="title">@item.MenuName</span><span class="arrow"></span>
+                            </a>
+                            <ul class="sub">
+                                @foreach (var m in menuList.Where(c => c.ParentId == item.Id))
+                                {
+                                    <li><a class="menu_list" id="@m.Id" value="~/@m.ControllerName/@m.ActionName" href="javascript:void(0);">@m.MenuName</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                }
+                <li class="">
+                    <a href="~/Account/Logout">
+                        <i class="icon-signout"></i>
+                        <span class="title" lang_l="lc_loginOut">退出系统</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+        <div id="body">
+            <div class="container-fluid" id="nav_iframe">
+                <div class="breadcrumb">
+                    @*<div class="icon-double-angle-left" style="border: solid 1px #ccc5cc;"></div>*@
+                    <div class="tab_nav">
+                        <div class="tab">
+                            @*导航菜单*@
+                            <span class="nav_item" onclick="NavItem(this)" style="margin-right:-5px;padding-right: 10px;" value="11">公告</span>
+                        </div>
+                    </div>
+                    @*<div class="icon-double-angle-right" style="border: solid 1px #ccc5cc;"></div>*@
+                </div>
+                @*iframe窗体*@
+                <div id="f_11" class="item_show">
+                    <img hidden src="about:blank" onerror="IframeLoad(this)" />
+                    <iframe id="portal_iframe_11" name="portal_iframe_11" src="~/Home/Test" frameborder="0" width="100%" height="100%"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function Edit()
+        {
+            $.jBox.open("get:/Home/ChangePwd", "修改密码", 350, 200, {
+                buttons: { "确定": true, "关闭": false }, submit: function (v, h, f) {
+                    if (v == true) {
+                        var currentPassword = h.find("#currentPassword").val();
+                        var passWord = h.find("#txtPassword").val();
+                        var confirm = h.find("#txtConfirm").val();
+
+                        if (currentPassword == undefined || currentPassword == "") {
+                            $.jBox.tip("请输入当前密码", "warn");
+                            return false;
+                        }
+                        if (passWord == undefined || passWord == "") {
+                            $.jBox.tip("请输入密码", "warn");
+                            return false;
+                        }
+                        if (confirm == undefined || confirm == "") {
+                            $.jBox.tip("请输入确认密码", "warn");
+                            return false;
+                        }
+                        if (passWord != confirm) {
+                            $.jBox.tip("密码和确认密码不一致", "warn");
+                            return false;
+                        }
+                        var param = {};
+                        param["currentPassword"] = currentPassword;
+                        param["PassWord"] = passWord;
+
+                        $.ajax({
+                            url: "/Home/ChangePwd",
+                            data: param,
+                            type: "post",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result.d == "1") {
+                                    $.jBox.tip("修改成功", "success");
+
+                                } else {
+                                    $.jBox.tip("修改失败，当前密码不正确！", "error");
+
+                                }
+                            }
+                        });
+                        return true;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+        }
+        $(document).ready(function () {
+            //LoadLanguage.Init();
+            //左侧菜单
+            masterUI.ToggleMenu();
+            var height = $(document).height();
+            height = parseInt(height) - 80;
+            $("#body").css("min-height", height);
+
+            //菜单点击事件
+            $(".menu_list").click(function () {
+                var menu = $(this);
+
+                //菜单选中状态
+                $("li.active").removeClass("active");
+                menu.parent().addClass("active");
+
+                //加载窗体
+                if ($('#f_' + menu.attr("id") + '').length == 1) {
+                    //窗体已打开
+                    $(".item_show").attr("class", "item_hide");
+                    $("#f_" + menu.attr("id") + "").attr("class", "item_show");
+                    NavSeleteStatus(menu.attr("id"));
+                    return false;
+                }
+                $(".item_show").attr("class", "item_hide");
+                $(".tab").append('<span class="nav_item" onclick="NavItem(this)" value="' + menu.attr("id") + '">' + menu.text() + '<span class="nav_close" onclick="NavClose(this)" value="' + menu.attr("id") + '">x</span></span>');
+                $("#nav_iframe").append('<div id="f_' + menu.attr("id") + '" class="item_show"><img hidden src="about:blank" onerror="IframeLoad(this)" /><iframe id="portal_iframe_' + menu.attr("id") + '" name="portal_iframe_' + menu.attr("id") + '" src="' + menu.attr("value") + '" scrolling="no" frameborder="0" width="100%" height="100%"></iframe></div>');
+
+                NavSeleteStatus(menu.attr("id"));
+            });
+        });
+        //导航菜单选中状态
+        function NavSeleteStatus(id) {
+            $(".nav_item").css("background-color", "");
+            $(".nav_item").css("color", "black");
+            $(".nav_item").each(function () {
+                var _val = $(this);
+                if ($(_val).attr("value") == id) {
+                    $(_val).css("background-color", "#48494b");
+                    $(_val).css("margin-left", "10px");
+                    $(_val).css("color", "white");
+                    //阻止冒泡
+                    window.event.cancelBubble = true;
+                }
+            });
+        }
+        function IframeLoad(sp)
+        {
+            $(sp).parent().css("height", ($(window).height() - 150));
+            return false;
+        }
+        //var tId = "";
+        function NavItem(sp) {
+            $(".nav_item").css("background-color", "");
+            $(".nav_item").css("color", "black");
+            $(sp).css("background-color", "#48494b");
+            $(sp).css("color", "white");
+            var fID = $(sp).attr("value");
+            $(".item_show").attr("class", "item_hide");
+            $("#f_" + fID + "").attr("class", "item_show");
+        }
+        function NavClose(sp)
+        {
+            sp = $(sp);
+            var fID = $(sp).attr("value");
+            var brother = $("#f_" + fID + "")
+            //1显示兄弟窗口
+            $(".item_show").attr("class", "item_hide");
+            $(".nav_item").css("background-color", "");
+            $(".nav_item").css("color", "black");
+            if (brother.next().attr("id") == undefined) // 下一个兄弟节点
+            {
+                //没找到显示上一个菜单
+                brother.prev().attr("class", "item_show");
+
+                sp.parent().prev().css("background-color", "#48494b");
+                sp.parent().prev().css("color", "white");
+            } else {
+                brother.next().attr("class", "item_show");
+                sp.parent().next().css("background-color", "#48494b");
+                sp.parent().next().css("color", "white");
+            }
+            //2关闭当前导航菜单
+            sp.parent().remove();
+            //3关闭对应的内容窗口
+            $("#f_" + fID + "").remove();
+            //阻止冒泡
+            window.event.cancelBubble = true;
+        }
+
+        /********************************************左侧菜单***********************************************/
+        var masterUI = {
+            ToggleMenu: function () {
+                //用于左侧菜单展开以及显示
+                $(".sidebar-toggler").click(function () {
+                    var MenuStatus = "open";
+                    if (!$("#container").hasClass("sidebar-closed")) {
+                        $("#container").addClass("sidebar-closed");
+                        MenuStatus = "close";
+                    } else {
+                        $("#container").removeClass("sidebar-closed");
+                        MenuStatus = "open";
+                    }
+                });
+
+                //右侧菜单点击操作
+                $("#sidebar ul .has-sub").click(function () {
+                    var index = $("#sidebar ul .has-sub").index($(this));
+                    $("#sidebar ul .has-sub").each(function (i, item) {
+                        if (index == i) {
+                            $(this).children(".sub").slideDown(500, function () {
+                                if (!$(item).hasClass("active")) {
+                                    $(item).children("a").children(".arrow").addClass("open");
+                                    $(item).addClass("active");
+                                }
+                            });
+                        } else {
+                            $(item).children(".sub").slideUp(500, function () {
+                                if ($(item).hasClass("active")) {
+                                    $(item).removeClass("active");
+                                    $(item).children("a").children(".arrow").removeClass("open");
+                                }
+                            });
+                        }
+                    });
+                });
+            },
+            Ad: function () {
+                //$.jBox.messager("<img alt='' src='/Theme/img/PDA.jpg'/>", "&nbsp;&nbsp;系统动态:新增Android版本手持机支持 ", 10000, {
+                //    width: 350, showType: 'fade', buttons: { '关闭': true }, submit: function (v, h, f) {
+                //        //window.open("http://www.jooshow.com/");
+                //        return true;
+                //    }
+                //});
+            }
+        };
+    </script>
+    @*@Html.Partial("_Foot")*@
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+﻿
+
+<!DOCTYPE html>
+@model IEnumerable<UCMS.WebSite.Models.DefaultModels.CarTypeModel>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>二手车信息网</title>
+    
+</head>
+<body>
+    <div class="pBody"> 
+        @Html.Partial("_Top")
+        <div class="pContent">
+            @foreach (var item in Model)
+            {
+                <div>
+                    <div class="pTitle">
+                        <div style="float: left;margin-left: 20px;font-size: 16px;color: red;">@item.TypeName</div>
+                        <div style="float:right;margin-right: 20px;"><a onclick="TypeClick('@item.Id')">更多>></a></div>
+                    </div>
+                    <table class="tableList">
+                        <thead>
+                            <tr>
+                                <th>编号</th>
+                                <th>品牌型号</th>
+                                <th>车型</th>
+                                <th>上牌日期</th>
+                                <th>颜色</th>
+                                <th>交易报价</th>
+                                <th>备注</th>
+                                <th>变速器</th>
+                                <th>发布日期</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var car in item.CarInfo)
+                            {
+                                <tr onclick="CarInfo('@car.Id');" onmouseover="style.backgroundColor='#FCE6BF'" onmouseout="style.backgroundColor='#ffffff'" style="background-color: rgb(255, 255, 255);">
+                                    <td>@car.CarNo</td>
+                                    <td>@Html.Raw(car.BrandName+car.SeriesName+car.CarName)</td>
+                                    <td>@car.TypeName</td>
+                                    <td>@Html.Raw(car.LicenseTime.ToString("yyyy年MM月"))</td>
+                                    <td>@car.CarColor</td>
+                                    <td style="color:red;">@car.RetailPrice 万</td>
+                                    <td>@car.Remark</td>
+                                    <td>@car.Transmission</td>
+                                    <td>@Html.Raw(car.CreateTime.ToString("yyyy-MM-dd"))</td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            }
+        </div>
+        <div class="pPage" id="mypager"></div>
+        @Html.Partial("_Foot")
+    </div>
+    <script>
+        
+        @*$(document).ready(function () {
+            $("#keyList").click(function () {
+                var TypeId = $("#TypeId").val();
+                var RetailPrice1 = $("#RetailPrice1").val();
+                var RetailPrice2 = $("#RetailPrice2").val();
+                var Transmission = $("#Transmission").val();
+                var CarNo = $("#CarNo").val();
+                var BrandId = $("#BrandId").val();
+                var SeriesId = $("#SeriesId").val();
+                var LicenseTime1 = $("#LicenseTime1").val();
+                var LicenseTime2 = $("#LicenseTime2").val();
+                var Search = $("#Search").val();
+                var param = {};
+                param["page"] = pageIndex;
+                param["rows"] = 50;
+                param["TypeId"] = TypeId;
+                param["RetailPrice1"] = RetailPrice1;
+                param["RetailPrice2"] = RetailPrice2;
+                param["Transmission"] = Transmission;
+                param["CarNo"] = CarNo;
+                param["BrandId"] = BrandId;
+                param["SeriesId"] = SeriesId;
+                param["LicenseTime1"] = LicenseTime1;
+                param["LicenseTime2"] = LicenseTime2;
+                param["Search"] = Search;
+
+                $.ajax({
+                    url: "@Url.Content("~/Page/Default/")CarList",
+                    data: param,
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        var json = result;
+                        var Html = "";
+                        /*
+        <table class="tableList">
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>品牌型号</th>
+                    <th>车型</th>
+                    <th>上牌日期</th>
+                    <th>颜色</th>
+                    <th>交易报价</th>
+                    <th>备注</th>
+                    <th>变速器</th>
+                    <th>发布日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr onmouseover="style.backgroundColor='#FCE6BF'" onmouseout="style.backgroundColor='#ffffff'" style="background-color: rgb(255, 255, 255);">
+                    <td>123</td>
+                    <td>雪铁龙爱丽舍</td>
+                    <td>轿车</td>
+                    <td>2016年10月</td>
+                    <td>黑色</td>
+                    <td>5.5万</td>
+                    <td>一手极品私家代步车，性价比最高...</td>
+                    <td>手动档</td>
+                    <td>2018-11-15</td>
+                </tr>
+            </tbody>
+        </table>*/
+                        Html += "<table class=\"tableList\"><thead><tr><th>编号</th><th>品牌型号</th><th>车型</th><th>上牌日期</th><th>颜色</th><th>交易报价</th><th>备注</th><th>变速器</th><th>发布日期</th></tr></thead><tbody>";
+                        if (json.Data != undefined && json.Data.length > 0) {
+                            $(json.Data).each(function (i, item) {
+                                Html += "<tr onmouseover=\"style.backgroundColor='#FCE6BF'\" onmouseout=\"style.backgroundColor='#ffffff'\" style=\"background-color: rgb(255, 255, 255);\">";
+                                Html += "<td>" + item.CarNo + "</td>";
+                                Html += "<td>" + item.BrandName + item.SeriesName + item.CarName + "</td>";
+                                Html += "<td>" + item.TypeName + "</td>";
+                                Html += "<td>" + erp.newDate(item.LicenseTime) + "</td>";
+                                Html += "<td>" + item.CarColor + "</td>";
+                                Html += "<td><font color='red'>" + item.RetailPrice + "</font>万</td>";
+                                Html += "<td>" + item.Remark + "</td>";
+                                Html += "<td>" + erp.GetEnumDesc(ETransmission, item.Transmission) + "</td>";
+                                Html += "<td>" + erp.newDateFormate(item.CreateTime) + "</td>";
+                                Html += "</tr>";
+                            });
+                        }
+                        else {
+                            Html += '<tr><td colspan="20" style="text-align:center">暂无数据</td></tr>';
+                        }
+                        Html += "</tbody></table>";
+                        $(".pContent").html(Html);
+                        $("#mypager").mypager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: pageSize, buttonClickCallback: PageClick });
+                    }
+                });
+            });
+        });*@
+    </script>
+</body>
+</html>

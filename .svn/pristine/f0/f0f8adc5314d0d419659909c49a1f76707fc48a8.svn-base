@@ -1,0 +1,143 @@
+﻿
+@{
+    //Layout = null;
+}
+
+@model UCMS.WebSite.Models.SysSettingModels.SysSetting
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style>
+        .sMain{
+            margin-left:20px;
+        }
+        .sMain input[type="text"]{
+            width:300px;
+        }
+
+        .sMain span{
+            width: 150px;
+    display: inline-block;
+    text-align: right;
+        }
+        .hidden {
+            display: none;
+        }
+        .show {
+            display: inline-block;
+            width: 100%;
+        }
+        .bootom {
+            height: 50px;
+            text-align: left;
+        }
+        .bootom #submit {
+            border: solid 1px red;
+            padding: 5px 10px 5px 10px;
+            margin: 10px;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: #f98a00;
+            color: white;margin-left: 200px;
+        }
+    </style>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+        @using (Html.BeginForm("Save", "SysSetting", FormMethod.Post, new { @id = "documentForm", @name = "documentForm", @enctype = "multipart/form-data" }))
+        {
+            @Html.HiddenFor(c => c.Id)
+            <div class="sMain">
+                <p>
+                    <span>系统名称：</span>
+                    @Html.TextBoxFor(c => c.SystemName)
+                </p>
+                <p>
+                    <span>主页logo：</span>
+                    <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.HomeLogo" />
+                    <input type="file" class="hidden" id="HomeLogo" name="HomeLogo" onchange="javascript:setImagePreview(this);" />
+                    <input type="button" value="选择图片" onclick="javascript: $('#HomeLogo').trigger('click');" />
+                </p>
+                <p>
+                    <span>登录页logo：</span>
+                    <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.LoginLogo" />
+                    <input type="file" class="hidden" id="LoginLogo" name="LoginLogo" onchange="javascript:setImagePreview(this);" />
+                    <input type="button" value="选择图片" onclick="javascript: $('#LoginLogo').trigger('click');" />
+                </p>
+                <p>
+                    <span>底部logo：</span>
+                    <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.FootLogo" />
+                    <input type="file" class="hidden" id="FootLogo" name="FootLogo" onchange="javascript:setImagePreview(this);" />
+                    <input type="button" value="选择图片" onclick="javascript: $('#FootLogo').trigger('click');" />
+                </p>
+                <p>
+                    <span>秘书处：</span>
+                    @Html.TextBoxFor(c => c.Contact)<font style="color:red;">如：（qq：123 微信：456 （账号开通审核信息等））</font>
+                </p>
+                <p>
+                    <span>技术处：</span>
+                    @Html.TextBoxFor(c => c.Feeback)<font style="color:red;">如：（qq群：123）</font>
+                </p>
+            </div>
+            <div class="bootom">
+                <button id="submit">提 交</button>
+            </div>
+        }
+    </div>
+    <div id="img_show" class="modal hide">
+    </div>
+    <script>
+
+        //显示大图
+        function showimage(source) {
+            if ($(source).attr("src") != undefined) {
+                $("#img_show").html("<image src='" + $(source).attr("src") + "' class='carousel-inner img-responsive img-rounded' />");
+                $("#img_show").modal();
+            }
+        }
+        //预览图片
+        function setImagePreview(avalue) {
+            var docObj = $(avalue);
+            //处理合法性
+            var path = docObj.val();
+            if (!path) {
+                docObj.prev().attr("src", "Theme/img/NotPic.jpg");
+                return false;
+            }
+            var ext = path.substring(path.lastIndexOf('.'), path.length).toUpperCase();
+            if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG' && ext !== '.GIF') {
+                $.jBox.tip("请上传格式 JPG、JPEG、PNG、GIF 的图片", "warn");
+                file.attr("value", "");
+                return false;
+            }
+            //TODO:不支持ie
+            var size = (docObj[0].files[0].size / 1024).toFixed(2);//kb
+            if (size > 2048) {
+                $.jBox.tip("图片不能大于2m", "warn");
+                docObj.attr("value", "");
+                return false;
+            }
+
+            if (docObj[0].files && docObj[0].files[0]) {
+                //imgObjPreview.src = docObj.files[0].getAsDataURL();
+                //火狐7以上版本不能用上面的getAsDataURL()方式获取，需要一下方式
+                docObj.prev().attr("src", "" + window.URL.createObjectURL(docObj[0].files[0]) + "");
+            }
+            else {
+                //IE下，使用滤镜
+                //changes时可以用这种方式 $(this).select();
+                //ie获取不到本地浏览图片  后续在处理
+                docObj.select();
+                window.parent.document.body.focus();
+                var realpath = document.selection.createRange().text;
+                docObj.prev().css("filter", "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',src=\"" + realpath + "\",sizingMethod=scale)");
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

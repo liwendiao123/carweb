@@ -1,0 +1,69 @@
+﻿
+@{
+    //Layout = null;
+}
+
+@model IEnumerable<UCMS.WebSite.Models.SysNoticeModels.SysNoticeModel>
+<!DOCTYPE html>
+
+<html style="height:100%;">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Detail</title>
+    <style>
+        body{height:100%;}
+        .nLeft{
+            width:300px;
+            float:left;
+            height:100%;background-color: #fbfbfb;
+        }
+        .nReft{
+            float:left;
+            margin-left:20px;
+            padding:10px;
+            width:650px;
+            min-height:80%;background-color: #fffcfc;
+        }
+    </style>
+</head>
+<body>
+    <div style="height:100%;">
+        <div class="nLeft">
+            <div style="padding:10px;">
+                @if (Model != null && Model.Count() > 0)
+                {
+                    foreach (var item in Model)
+                    {
+                            <div><a href="javascript:void(0)" onclick="Detail('@item.Id')">>>@item.Title</a></div>
+                        }
+                    }
+                    else
+                    {
+                        <div>
+                            暂无咨询。。。
+                        </div>
+                    }
+            </div>
+        </div>
+        <div class="nReft">
+            <div style="text-align:center;font-weight:bold;">
+                @ViewBag.Title
+            </div>
+            <div>
+                @Html.Raw(ViewBag.Content)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function Detail(Id) {
+            Id = Id == undefined ? "" : Id;
+            $.jBox.open("get:@Url.Content("~/Sys/SysNotice/")Detail?Id=" + Id, "查看公告", 700, 500, {
+                buttons: { '关闭': false }, submit: function (v, h, f) {
+                    return true;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

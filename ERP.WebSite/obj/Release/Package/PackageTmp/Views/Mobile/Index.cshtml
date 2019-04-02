@@ -1,0 +1,110 @@
+﻿
+@{
+    Layout = null;
+}
+@model IEnumerable<UCMS.Entitys.CarInfo>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/base.css" rel="stylesheet" />
+    <link href="~/Content/cs.css" rel="stylesheet" />
+    <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
+    <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
+    <script src="~/Theme/js/jweixin-1.2.0.js"></script>
+    <script src="~/Theme/js/function.js"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+    @using (Html.BeginForm("Index", "Mobile", FormMethod.Post, new { @id = "documentForm", @name = "documentForm" }))
+    {
+        <div class="w floatcenter clearfix">
+            <div class="top">
+                <a href="#"><b style="line-height:30px;margin: 5px;">@ViewBag.Title</b></a>
+                @Html.Raw(ViewBag.User)
+            </div>
+            <div class="carlist">
+                <div class="carlist_s clearfix">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.DropDownList("HopePrice", ViewBag.PriceItem as List<SelectListItem>,new { onchange= "document.documentForm.submit()" })
+                                </td>
+                                <td>
+                                    @Html.DropDownList("UseYears", ViewBag.YearItme as List<SelectListItem>, new { onchange = "document.documentForm.submit()" })
+                                </td>
+                                <td>
+                                    @Html.DropDownList("CarType", ViewBag.TypeItem as List<SelectListItem>, new { onchange = "document.documentForm.submit()" })
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="carsearch clearfix">
+                    <input name="Search" type="text" id="Search" class="carsearch1" placeholder="请在这里输入关键字" value="@ViewBag.Search">
+                    <input type="image" name="ibtSearch" id="ibtSearch" class="carsearch2" src="~/Content/Images/search.png" style="border-width:0px;">
+                </div>
+                <div class="carlist1 clearfix">
+                    <ul id="carList">
+                        @foreach (var item in Model)
+                        {
+                            <li>
+                                <a href="~/Mobile/carinfo?id=@item.Id">
+                                    <table>
+                                        <tr>
+                                            <th><img src="@item.PhotoURL" /></th>
+                                            <td style="width:62%;">
+                                                <h1>车辆型号：@Html.Raw(item.BrandName + item.SeriesName + item.CarName)</h1><br /><span>@item.Odometer / @Html.Raw(item.LicenseTime.ToString("yyyy-M"))</span><br /><label>￥@Html.Raw(item.RetailPrice)万元</label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="more clearfix" id="more">
+                    <input type="button" onclick="GetCarList('more','carList',currPage)" value="按住上拉查看更多"/>
+                </div>
+                <script type="text/javascript">
+                    $(window).scroll(function () {
+                        var scrollTop = $(this).scrollTop();
+                        var scrollHeight = $(document).height();
+                        var windowHeight = $(this).height();
+                        if (scrollTop + windowHeight == scrollHeight) {
+                            if ($("#iMove").val() != "没有了") {
+                                GetCarList('more', 'carList', currPage);
+                            }
+                        }
+                    });
+                </script>
+            </div>
+            <div class="bgLine clearfix">&nbsp;</div>
+        </div>
+
+        <div class="bottom">
+            <table style="height:30px;">
+                <tbody>
+                    <tr>
+                        <td><a href="#" style="color:red;">首页</a></td>
+                        <td><a href="~/Mobile/MyCar">我的车源</a></td>
+                        @if (UCMS.Common.FormsTicket.UserType == 1)
+                        {
+                            <td><a href="~/Mobile/AuditList">审核车源</a></td>
+                        }
+                        <td><a href="~/Mobile/Notice">公告</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="piao">
+            <div onclick="$(window).scrollTop(0);">顶部</div>
+        </div>
+    }
+</body>
+</html>

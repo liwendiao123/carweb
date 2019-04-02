@@ -1,0 +1,659 @@
+﻿
+@{
+    Layout = null;
+    var NotPic = "/Content/Images/NotPic.jpg";
+}
+@model UCMS.WebSite.Models.CarInfoModels.CarInfoModel
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>编辑车源</title>
+    <link href="~/Content/base.css" rel="stylesheet" />
+    <link href="~/Content/cs.css" rel="stylesheet" />
+    <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
+    <link href="~/Content/mobiscroll-2.13.2.full.min.css" rel="stylesheet" />
+    <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
+    <script src="~/Theme/js/jweixin-1.2.0.js"></script>
+    <script src="~/Theme/js/function.js"></script>
+    <script src="~/Theme/js/mobiscroll-2.13.2.full.min.js"></script>
+    <style>
+        #ImgContent {min-height:115px;}
+        #ImgContent>div
+        {
+            position:relative;
+            display:inline-block;
+            width:101px;   
+            text-align: center;
+            margin-left:5px;
+            margin-top:5px;
+        }
+        #ImgContent>img
+        {
+            cursor:pointer;
+        }
+        #ImgContent span {
+            cursor: pointer;
+            border: solid 1px #c0c0c0;
+            padding: 1px 10px 1px 10px;
+            margin-top: 5px;
+            display: inline-block;-moz-user-select: none;-khtml-user-select: none;user-select: none;
+        }
+        #ImgContent font {
+            cursor: pointer;
+            border: solid 1px #c0c0c0;
+            padding: 1px 5px 1px 5px;
+            margin-top: 5px;
+            display: inline-block;
+            margin-right:2px;-moz-user-select: none;-khtml-user-select: none;user-select: none;
+            position:absolute;
+            top:0px;
+            right:0px;    background-color: #efefef;
+        }
+        .hidden {
+            display: none;
+        }
+        .show {
+            display: inline-block;
+            width: 100%;
+        }
+        th{width:80px;}
+        .error{color:red;}
+    </style>
+</head>
+<body>
+    @using (Html.BeginForm("Save", "Mobile", FormMethod.Post, new { @id = "documentForm", @name = "documentForm" }))
+    {
+        @Html.HiddenFor(c => c.Id)
+        @Html.Hidden("filelist")
+        <div class="carinfo clearfix">
+            <div class="carinfo3t clearfix"><a href="javascript:history.go(-1)">《 车源管理</a></div>
+            <div class="carinfo3 clearfix">
+                <table>
+                    <tbody>
+                        @*<tr>
+                                <th>车辆识别码：</th>
+                                <td>
+                                    @Html.TextBoxFor(c => c.VIN, new { @class = "einput" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>行驶证：</th>
+                                <td>
+                                    <img style="width:100px;height:110px;" src="@Model.VehicleLicense" />
+                                    <input type="file" class="hidden" id="VehicleLicense" name="VehicleLicense" onchange="javascript:setImagePreview(this);" />
+                                    <img style="width:100px;" onclick="javascript: $('#VehicleLicense').trigger('click');" src="~/Content/Images/upload.png" />
+                                </td>
+                            </tr>*@
+                        <tr>
+                            <th>车型：</th>
+                            <td>
+                                @Html.DropDownList("TypeId", ViewBag.TypeItem as List<SelectListItem>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>品牌：</th>
+                            <td>
+                                @Html.DropDownList("BrandId", ViewBag.BrandItem as List<SelectListItem>)
+                                @Html.DropDownList("SeriesId", ViewBag.SeriesItem as List<SelectListItem>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>其他参数：</th>
+                            <td>
+                                @Html.TextBoxFor(c => c.CarName, new { @class = "einput" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>车源主图：</th>
+                            <td>
+                                <img style="width:100px;height:110px;" src="@Model.PhotoURL" id="PhotoURL1" />
+                                <input type="file" class="hidden" id="PhotoURL" name="PhotoURL" onchange="javascript:setImagePreview(this);" />
+                                <img style="width:100px;" onclick="javascript: $('#PhotoURL').trigger('click');" src="~/Content/Images/upload.png" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>车源图片：</th>
+                            <td id="ImgContent">
+                                <input type="hidden" id="TempId" name="TempId" value="0" />
+                                <input type="hidden" id="ImgList" name="ImgList" value="" />
+                                <input type="hidden" id="ImgDelete" name="ImgDelete" value="" />
+                                <img style="width:100px;" onclick="$('#wfile').trigger('click')" src="~/Content/Images/upload.png" />
+                                <input type="file" id="wfile" name="wfile" onchange="AddImg()" multiple="multiple" style="width:100px;display:none;" />
+                                @if (Model.Photo != null && Model.Photo.Count > 0)
+                                {
+                                    foreach (var item in Model.Photo)
+                                    {
+                                        <div class="imgFlag">
+                                            <img style="width:100px;height:110px;" src="@item.URL" />
+                                            <input type="file" class="hidden" id="@item.Id" name="@item.Id" onchange="javascript:setImagePreview(this);" />
+                                            <font onclick="ImgClose(this, '@item.Id')">X</font>
+                                        </div>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>车体颜色：</th>
+                            <td>
+                                @Html.TextBoxFor(c => c.CarColor, new { @class = "einput", @placeholder = "如：黑色、白色" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>车主报价：</th>
+                            <td>
+                                @Html.TextBoxFor(c => c.RetailPrice, new { @class = "einput" })
+                                <span>（万元）</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>还价不多：</th>
+                            <td>
+                                <label>
+                                    @Html.RadioButton("IsRepay", 1)<lable style="color:Red"> 是</lable>
+                                </label>
+                                <label>
+                                    @Html.RadioButton("IsRepay", 0)<lable style="color:blue"> 否</lable>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>上牌日期：</th>
+                            <td>
+                                @Html.TextBox("LicenseTime", Model.LicenseTime.ToString("yyyy-MM"))
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>表显里程：</th>
+                            <td>
+                                @Html.TextBoxFor(c => c.Odometer, new { @class = "einput" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>排气量：</th>
+                            <td>
+                                @Html.TextBoxFor(c => c.SweptVolume, new { @class = "einput" })
+                                <span>（升）</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>排放标准：</th>
+                            <td>
+                                @Html.DropDownList("EmissionStandards", ViewBag.EmissionStandards as List<SelectListItem>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>国产进口：</th>
+                            <td>
+                                <label>
+                                    @Html.RadioButton("ProductAddress", 0)
+                                    <font style="color:orangered"> 国产</font>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;
+                                <label>
+                                    @Html.RadioButton("ProductAddress", 1)
+                                    <font style="color:blue"> 进口</font>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>变速器：</th>
+                            <td>
+                                <label>
+                                    @Html.RadioButton("Transmission", 0)
+                                    <font style="color:orangered"> 手动</font>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;
+                                <label>
+                                    @Html.RadioButton("Transmission", 1)
+                                    <font style="color:blue"> 自动</font>
+                                </label>
+                                &nbsp;&nbsp;&nbsp;
+                                <label>
+                                    @Html.RadioButton("Transmission", 2)
+                                    <font style="color:#287316"> 手自一体</font>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>燃料：</th>
+                            <td>
+                                @Html.DropDownList("Fuel", ViewBag.FualItem as List<SelectListItem>)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>车检报告：</th>
+                            <td>
+                                <img style="width:100px;height:110px;" src="@Model.TestReport" />
+                                <input type="file" class="hidden" id="TestReport" name="TestReport" onchange="javascript:setImagePreview(this);" />
+                                <img style="width:100px;" onclick="javascript: $('#TestReport').trigger('click');" src="~/Content/Images/upload.png" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>具体说明：</th>
+                            <td>
+                                @Html.TextAreaFor(c => c.Remark, new { @style = "width: 172px;" })
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="bgLine clearfix">&nbsp;</div>
+        </div>
+        <div class="bottom" style="line-height: 30px;" id="submit" xw="1">
+            提交
+        </div>
+        <script src="~/Theme/js/jquery.validate.js"></script>
+        <script src="~/Theme/plugins/My97DatePicker/WdatePicker.js"></script>
+        <script src="~/Theme/js/jquery.form.js"></script>
+        <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src=' https://unpkg.com/qiniu-js@<version>'></script>
+        <script>
+            let lastFile = null;
+            let sourceImage;
+            let options = {
+                quality: 0.92,
+                noCompressIfLarger: true
+                // maxWidth: 1000,
+                // maxHeight: 618
+            };
+            $("#select").change(function () {
+                options.outputType = this.files[0].type;
+                sourceImage = new Image();
+                let sourceUrl = URL.createObjectURL(this.files[0]);
+                sourceImage.src = sourceUrl;
+                sourceImage.onload = () => {
+                    compress(this.files[0]);
+                };
+            });
+
+            $('input[type="range"]').each(function () {
+                let name = $(this).attr("name");
+                $(this).val(options[name]);
+                $(this).next().text(options[name]);
+                $(this).on("change", function () {
+                    options = Object.assign(options, { [name]: +$(this).val() });
+                    $(this).next().text(options[name]);
+                    compress();
+                });
+            });
+
+            function compress(file) {
+                file = file || lastFile;
+                lastFile = file;
+                URL.revokeObjectURL($(".distImage img").attr("src"));
+                URL.revokeObjectURL($(".sourceImage img").attr("src"));
+                $(".distImage img").attr("src", "");
+                $(".sourceImage img").attr("src", "");
+                $(".distImage pre").text("");
+                $(".sourceImage pre").text("");
+
+                qiniu.compressImage(file, options).then(data => {
+                    $(".distImage img").attr("src", URL.createObjectURL(data.dist));
+                    $(".sourceImage img").attr("src", URL.createObjectURL(file));
+                    $(".distImage pre").text("File size:" + (data.dist.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + data.dist.type + "\n" + "Dimensions:" + data.width + "*" + data.height + "\n" + "ratio:" + (data.dist.size / file.size).toFixed(2) * 100 + "%")
+                    $(".sourceImage pre").text("File size:" + (file.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + file.type + "\n" + "Dimensions:" + sourceImage.width + "*" + sourceImage.height)
+                }).catch(res => {
+                    console.log(res);
+                });
+            }
+
+        </script>
+        <script>
+        $(document).ready(function () {
+            //手机时间格式
+            $("#LicenseTime").mobiscroll().date({
+                theme: "android-ics light",
+                lang: "zh",
+                cancelText: null,
+                dateFormat: 'yy-mm', //返回结果格式化为年月格式
+                // wheels:[], 设置此属性可以只显示年月，此处演示，就用下面的onBeforeShow方法,另外也可以用treelist去实现
+                onBeforeShow: function (inst) { inst.settings.wheels[0].length > 2 ? inst.settings.wheels[0].pop() : null; }, //弹掉“日”滚轮
+                headerText: function (valueText) { //自定义弹出框头部格式
+                    array = valueText.split('-');
+                    return array[0] + "年" + array[1] + "月";
+                }
+            });
+            function compress(file) {
+                file = file || lastFile;
+                lastFile = file;
+                URL.revokeObjectURL($(".distImage img").attr("src"));
+                URL.revokeObjectURL($(".sourceImage img").attr("src"));
+                $(".distImage img").attr("src", "");
+                $(".sourceImage img").attr("src", "");
+                $(".distImage pre").text("");
+                $(".sourceImage pre").text("");
+
+                qiniu.compressImage(file, options).then(data => {
+                    $(".distImage img").attr("src", URL.createObjectURL(data.dist));
+                    $(".sourceImage img").attr("src", URL.createObjectURL(file));
+                    $(".distImage pre").text("File size:" + (data.dist.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + data.dist.type + "\n" + "Dimensions:" + data.width + "*" + data.height + "\n" + "ratio:" + (data.dist.size / file.size).toFixed(2) * 100 + "%")
+                    $(".sourceImage pre").text("File size:" + (file.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + file.type + "\n" + "Dimensions:" + sourceImage.width + "*" + sourceImage.height)
+                }).catch(res => {
+                    console.log(res);
+                });
+            }
+            //品牌
+            $("#BrandId").change(function () {
+                var BrandId = $("#BrandId").val();
+                if (BrandId != undefined && BrandId != "") {
+                    var param = {};
+                    param["Id"] = BrandId;
+                    $.ajax({
+                        url: controller() + "GetItem",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            $("#SeriesId").empty();
+                            $.each(result, function (index, item) {
+                                $("#SeriesId").append("<option value=\"" + item.Value + "\">" + item.Text + "</option>");
+                            });
+                        }
+                    });
+                }
+                else {
+                    $("#SeriesId").empty();
+                    $("#SeriesId").append("<option>--请选择--</option>");
+                }
+            });
+            //保存
+            //$("#submit").click(function () {
+            //    if (validateForm()) {
+            //        var img = [];
+            //        $("input[name^='File']").each(function () {
+            //            var fe = this;
+            //            if ($(fe).val() != "" && $(fe).val() != undefined) {
+            //                img.push($(fe).attr("name"));
+            //            }
+            //        });
+            //        $("#ImgList").attr("value", img);
+            //        $("#ImgDelete").attr("value", imgDel);
+            //        $("#documentForm").ajaxSubmit({
+            //            success: function (data) {
+            //                if (data.d == "1") {
+            //                    window.location.href = controller() + "/MyCar";
+            //                } else {
+            //                    alert("保存失败！");
+            //                }
+            //            }
+            //        });
+            //    }
+            //});
+            $("#submit").click(function () {
+                if ($("#submit").attr("xw") == "0")
+                {
+                    return;
+                }
+                if (!$("#PhotoURL1").attr("src"))
+                {
+                    alert("请上传主图！");
+                    return;
+                }
+                if (validateForm()) {
+                    $("#submit").attr("xw", "0");
+                    $("#submit").html("上传中....");
+                    ImgList = [];
+                    var fd = new FormData();
+                    if ($("#filelist").data("data") != undefined) {
+                        for (var i = 0; i < $("#filelist").data("data").length; i++) {
+                            ImgList.push("img_" + i);
+                            fd.append("img_" + i + "", $("#filelist").data("data")[i]);
+                        }
+                    }
+                    fd.append("Id", $("#Id").val());
+                    fd.append("TypeId", $("#TypeId").val());
+                    fd.append("BrandId", $("#BrandId").val());
+                    fd.append("SeriesId", $("#SeriesId").val());
+                    fd.append("CarName", $("#CarName").val());
+                    fd.append("PhotoURL", document.getElementById("PhotoURL").files[0]);
+                    fd.append("CarColor", $("#CarColor").val());
+                    fd.append("RetailPrice", $("#RetailPrice").val());
+                    fd.append("IsRepay", $("#IsRepay").val());
+                    fd.append("LicenseTime", $("#LicenseTime").val());
+                    fd.append("Odometer", $("#Odometer").val());
+                    fd.append("SweptVolume", $("#SweptVolume").val());
+                    fd.append("EmissionStandards", $("#EmissionStandards").val());
+                    fd.append("ProductAddress", $("#ProductAddress").val());
+                    fd.append("Transmission", $("#Transmission").val());
+                    fd.append("Fuel", $("#Fuel").val());
+                    fd.append("Remark", $("#Remark").val());
+                    fd.append("TestReport", document.getElementById("TestReport").files[0]);
+                    fd.append("ImgDelete", imgDel);
+                    fd.append("ImgList", ImgList);
+
+                    $.ajax({
+                        url: "/Mobile/Save",// controller() + "/Save",
+                        type: "post",
+                        dataType: "json",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            if (data.d == "1") {
+                                window.location.href = controller() + "/MyCar";
+                            } else {
+                                alert("保存失败！");
+                                $("#submit").attr("xw", "1");
+                                $("#submit").html("提交");
+                            }
+                        },
+                        error: function (xhr) {
+                            alert("保存失败！");
+                            $("#submit").attr("xw", "1");
+                            $("#submit").html("提交");
+                        }
+                    });
+                    //$("#documentForm").ajaxSubmit({
+                    //    success: function (data) {
+                    //        if (data.d == "1") {
+                    //            window.location.href = controller() + "/MyCar";
+                    //        } else {
+                    //            alert("保存失败！");
+                    //        }
+                    //    }
+                    //});
+                }
+            });
+        });
+        //删除图片
+        var imgDel = [];
+        function ImgClose(obj, id) {
+            if (id != undefined && id != "") {
+                imgDel.push(id);
+            }
+            var ar = $("#filelist").data("data");
+            if (ar) {
+                ar.splice(ar.indexOf("data-name"), 1);
+            }
+            $(obj).parent().remove();
+        }
+        //添加图片
+        function AddImg() {
+            //获得已选文件集合
+            var fs = document.getElementById("wfile").files;
+            var index = 0;
+            $(".imgFlag").each(function () {
+                index++;
+            });
+            if (index+fs.length >= 9) {
+                $.jBox.tip("最多只能上传9张图片！", "error");
+                return false;
+            }
+
+            var fsarray = new Array;
+            if ($("#filelist").data("data")) {
+                for (var i = 0; i < $("#filelist").data("data").length; i++) {
+                    fsarray.push($("#filelist").data("data")[i]);
+                }
+            }
+            if (fs) {
+                $.each(fs, function (i, v) {
+                    var ext = v.name.substring(v.name.lastIndexOf('.'), v.name.length).toUpperCase();
+                    if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG' && ext !== '.GIF') {
+                        alert("请上传格式 JPG、JPEG、PNG、GIF 的图片");
+                        return false;
+                    }
+                    compress(v);
+    
+                    fsarray.push(v);
+                    $("#ImgContent").append("<div class=\"imgFlag\"><img style=\"width:100px;height:110px;\" src=" + window.URL.createObjectURL(v) + " /><font onclick=\"ImgClose(this)\">X</font></div>");
+                })
+            }
+            else {
+                //ie9以下不支持
+                var img = document.getElementById("wfile").value + ",";
+                var arr = img.split(",");
+                $.each(arr, function (i, v) {
+                    //一张图片分组ie会报错
+                    if (arr.length - 1 == i) {
+                        return;
+                    }
+                    var ext = v.substring(v.lastIndexOf('.'), v.length).toUpperCase();
+                    if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG' && ext !== '.GIF') {
+                        alert("请上传格式 JPG、JPEG、PNG、GIF 的图片");
+                        return false;
+                    }
+                    fsarray.push(v);
+                    $("#filediv").append("<div class=\"imgFlag\"><img style=\"width:100px;height:110px;\" src='file:///" + v + "' /><font onclick=\"ImgClose(this)\">X</font></div>");
+                })
+            }
+            //向元素附加已选择的数据
+            $("#filelist").data("data", fsarray);
+        }
+        @*function AddImg()
+        {
+            var index = 0;
+            $(".imgFlag").each(function () {
+                index++;
+            });
+            if (index >= 9) {
+                $.jBox.tip("最多只能上传9张图片！", "error");
+                return false;
+            }
+            var id = parseInt($("#TempId").val());
+            id = id + 1;
+
+            var str = '<div class="imgFlag"><img style="width:100px;height:110px;" src="@NotPic"/><input type="file" class="hidden" id="FileUpload' + id + '" name="FileUpload' + id + '" onchange="javascript:setImagePreview(this);" /><font onclick="ImgClose(this)">X</font></div>';
+            $("#ImgContent").append(str);
+            $("#TempId").val(id);
+            $('#FileUpload' + id + '').trigger('click');
+        }*@
+        //var imgDel = [];
+        //function ImgClose(od,id)
+        //{
+        //    if(id!=undefined&&id!="")
+        //    {
+        //        imgDel.push(id);
+        //    }
+        //    $(od).parent().remove();
+        //}
+        function controller() {
+            return '@Url.Content("~/Mobile/")';
+        }
+        //预览图片
+        function setImagePreview(avalue) {
+            var docObj = $(avalue);
+            //处理合法性
+            var path = docObj.val();
+            if (!path) {
+                docObj.prev().attr("src", "Content/Images/NotPic.jpg");
+                return false;
+            }
+            var ext = path.substring(path.lastIndexOf('.'), path.length).toUpperCase();
+            if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG' && ext !== '.GIF') {
+                alert("请上传格式 JPG、JPEG、PNG、GIF 的图片");
+                file.attr("value", "");
+                return false;
+            }
+            //TODO:不支持ie
+            //var size = (docObj[0].files[0].size / 1024).toFixed(2);//kb
+            //if (size > 2048) {
+            //    alert("图片不能大于2m");
+            //    docObj.attr("value", "");
+            //    return false;
+            //}
+
+            if (docObj[0].files && docObj[0].files[0]) {
+                //imgObjPreview.src = docObj.files[0].getAsDataURL();
+                //火狐7以上版本不能用上面的getAsDataURL()方式获取，需要一下方式
+                docObj.prev().attr("src", "" + window.URL.createObjectURL(docObj[0].files[0]) + "");
+            }
+            else {
+                //IE下，使用滤镜
+                //changes时可以用这种方式 $(this).select();
+                //ie获取不到本地浏览图片  后续在处理
+                docObj.select();
+                window.parent.document.body.focus();
+                var realpath = document.selection.createRange().text;
+                docObj.prev().css("filter", "progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',src=\"" + realpath + "\",sizingMethod=scale)");
+            }
+            return true;
+        }
+
+        function validateForm() {
+            return $("#documentForm").validate({
+                rules: {
+                    CarName: {
+                        maxlength: 50
+                    },
+                    CarColor: {
+                        required: true,
+                        maxlength: 20
+                    },
+                    RetailPrice: {
+                        required: true,
+                        number: true
+                    },
+                    Odometer: {
+                        required: true,
+                        maxlength: 50
+                    },
+                    TypeId: {
+                        required: true
+                    },
+                    BrandId: {
+                        required: true
+                    },
+                    SeriesId: {
+                        required: true
+                    }
+                },
+                messages: {
+                    CarName: {
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    CarColor: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    RetailPrice: {
+                        required: "必填项",
+                        number: "请输入数字"
+                    },
+                    Odometer: {
+                        required: "必填项",
+                        maxlength: $.validator.format("不能大于{0}个字符")
+                    },
+                    TypeId: {
+                        required: "必填项"
+                    },
+                    BrandId: {
+                        required: "必填项"
+                    },
+                    SeriesId: {
+                        required: "必填项"
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                }
+            }).form();
+        }
+        </script>
+    }
+</body>
+</html>

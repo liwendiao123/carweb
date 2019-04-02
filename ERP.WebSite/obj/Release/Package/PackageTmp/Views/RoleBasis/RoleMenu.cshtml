@@ -1,0 +1,256 @@
+﻿
+@{
+    Layout = null;
+}
+@model IEnumerable<UCMS.WebSite.Models.RoleBasisModels.RoleMenuModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>RoleMenu</title>
+    <style>
+
+        label {
+            display: inline-block;
+            margin: 0px;    
+            line-height: 13px;
+        }
+        .treeview, .treeview ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            text-align: left;
+        }
+      .treeview input[type="checkbox"]{margin: 5px 0px 5px 5px;}
+.treeview ul {
+	background-color: white;
+	margin-top: 0px;
+}
+
+.treeview .hitarea {
+	background: url("../Theme/Images/tree/treeview-default.gif") -64px -25px no-repeat;
+	height: 16px;
+	width: 16px;
+	margin-left: -16px;
+	float: left;
+	cursor: pointer;
+}
+/* fix for IE6 */
+* html .hitarea {
+	display: inline;
+	float:none;
+}
+
+.treeview li { 
+	margin: 0;
+	padding: 3px 0pt 3px 18px;
+}
+
+.treeview a.selected {
+	background-color: #eee;
+}
+
+#treecontrol { margin: 1em 0; display: none; }
+
+.treeview .hover { color: red; cursor: pointer; }
+
+.treeview li { background: url("../Theme/Images/tree/treeview-default-line.gif") 0 0 no-repeat;}
+.treeview li.collapsable, .treeview li.expandable { background-position: 0 -176px; }
+
+.treeview .expandable-hitarea { background-position: -80px -3px; }
+
+.treeview li.last { background-position: 0 -1766px }
+.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url("../Theme/Images/tree/treeview-default.gif"); }  
+.treeview li.lastCollapsable { background-position: 0 -111px }
+.treeview li.lastExpandable { background-position: -32px -67px }
+
+.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea { background-position: 0; }
+
+.treeview-red li { background-image: url("../Theme/Images/tree/treeview-red-line.gif"); }
+.treeview-red .hitarea, .treeview-red li.lastCollapsable, .treeview-red li.lastExpandable { background-image: url("../Theme/Images/tree/treeview-red.gif"); } 
+
+.treeview-black li { background-image: url("../Theme/Images/tree/treeview-black-line.gif"); }
+.treeview-black .hitarea, .treeview-black li.lastCollapsable, .treeview-black li.lastExpandable { background-image: url("../Theme/Images/tree/treeview-black.gif"); }  
+
+.treeview-gray li { background-image: url("../Theme/Images/tree/treeview-gray-line.gif"); }
+.treeview-gray .hitarea, .treeview-gray li.lastCollapsable, .treeview-gray li.lastExpandable { background-image: url("../Theme/Images/tree/treeview-gray.gif"); } 
+
+.treeview-famfamfam li { background-image: url("../Theme/Images/tree/treeview-famfamfam-line.gif"); }
+.treeview-famfamfam .hitarea, .treeview-famfamfam li.lastCollapsable, .treeview-famfamfam li.lastExpandable { background-image: url("../Theme/Images/tree/treeview-famfamfam.gif"); }
+
+        /*.filetree li {
+            padding: 3px 0 2px 16px;
+        }*/
+        .filetree .folder, .filetree .file {
+            padding: 1px 0 1px 16px;
+        }
+        .filetree .folder {
+            background: url("../Theme/Images/tree/folder.gif") 0 0 no-repeat;
+        }
+        .filetree li.expandable label.folder {
+            background: url("../../Theme/Images/tree/folder-closed.gif") 0 0 no-repeat;
+        }
+        .filetree .file {
+            background: url("../Theme/Images/tree/file.gif") 0 0 no-repeat;
+            cursor: pointer;
+        }
+
+    </style>
+    <script src="~/Theme/js/jquery.treeview.min.js"></script>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+        <table class="formtab_user">
+            <tbody>
+                <tr>
+                    <td>
+                    </td>
+                    <td style="vertical-align: top;">
+                        <ul id="treeview" class="filetree">
+                            @Html.Hidden("RoleId", ViewBag.RoleId as string)
+                            @if (Model.Count() > decimal.Zero)
+                            {
+                                <li>
+                                    <label>
+                                        <input type="checkbox" onclick="SelectAll1(this)" />
+                                        <span>全选</span>
+                                    </label>
+                                </li>
+                                foreach (var item in Model.Where(c => c.ParentId == UCMS.Common.Constant.LONG_DEFAULT))
+                                {
+                                    <li>
+                                        @Html.CheckBox("cm_" + item.MenuId, item.IsSelect, new { @value = item.Id, @onclick = "OneMenu(this)", change = "default" })
+                                        <span class="folder">@item.MenuName</span>
+                                        <ul>
+                                            @foreach (var twoMenu in Model.Where(c => c.ParentId == item.MenuId))
+                                            {
+                                                <li>
+                                                    @Html.CheckBox("cm_" + twoMenu.MenuId, twoMenu.IsSelect, new { @value = twoMenu.Id, @onclick = "TwoMenu(this,'"+item.MenuId+"')", change = "default" })
+                                                    <label for="cm_@twoMenu.MenuId" class="file">@twoMenu.MenuName</label>
+                                                    @foreach (var mp in twoMenu.OperateList)
+                                                    {
+                                                        @Html.CheckBox("co_"+twoMenu.MenuId+"_" + mp.OperateId, mp.IsSelect, new { @value = mp.Id, change = "default" })
+                                                        string co = "co_" + twoMenu.MenuId + "_" + mp.OperateId;
+                                                        <label for="@co" class="file">@mp.OperateName</label>
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#treeview").treeview();
+            $(":checkbox").change(function () {
+                InputChange($(this));
+            });
+        });
+        function controller() {
+            return '@Url.Content("~/Sys/RoleBasis/")';
+        }
+        function SelectAll1(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                CheckedChange($("#treeview").find("input[type='checkbox']"), true)
+            } else {
+                CheckedChange($("#treeview").find("input[type='checkbox']"), false)
+            }
+        }
+        function OneMenu(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                CheckedChange($(item).parent().find("input[type='checkbox']"), true)
+            } else {
+                CheckedChange($(item).parent().find("input[type='checkbox']"), false)
+            }
+        }
+        function TwoMenu(item,menuId) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                var pf = $("#cm_" + menuId).attr("checked");
+                if (pf || pf == "checked") {
+                }
+                else {
+                    $("#cm_" + menuId).attr("checked", true);
+                    InputChange($("#cm_" + menuId));
+                }
+            }
+        }
+        //选中不选中
+        function CheckedChange(all, bool) {
+            $.each(all, function (i, val) {
+                var change = $(this);
+                //本身就已经是当前状态就不作记录变更
+                if (bool)
+                {
+                    if (change.attr("checked") != "checked")
+                    {
+                        //记录变更
+                        InputChange(change)
+                    }
+                }
+                else
+                {
+                    if (change.attr("checked") == "checked") {
+                        //记录变更
+                        InputChange(change)
+                    }
+                }
+                change.attr("checked", bool);
+            });
+        }
+        //记录变更
+        function InputChange(change)
+        {
+            if (change.attr("change") == "default") {
+                change.attr("change", "change")
+            }
+            else {
+                change.attr("change", "default")
+            }
+        }
+
+        function SaveRoleMenu()
+        {
+            var pData = "";
+            $.each($("#treeview").find("input[type='checkbox']"), function (i, val) {
+                //在这处理修改后的权限   分 授权和取消权限
+                var cb = $(this);
+                if (cb.attr("change") == ("change")) {
+                    //menuid_明细id_授权和取消权限
+                    var temp = ',' + cb.attr("id") + '_' + cb.attr("value");
+                    pData += temp;
+                }
+            });
+            if (pData != "") {
+                var param = {};
+                param["checkedId"] = pData;
+                param["RoleId"] = $("#RoleId").attr("value");
+
+                $.ajax({
+                    url: controller()+"SaveRoleMenu",
+                    data: param,
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        if (result.d == "1") {
+                            $.jBox.tip("设置成功！", "success");
+                            $.jBox.close();
+                        } else {
+                            $.jBox.tip("设置失败！", "error");
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

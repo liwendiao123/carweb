@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<appSettings>
+  <add key="webpages:Version" value="3.0.0.0" />
+  <add key="webpages:Enabled" value="false" />
+  <add key="ClientValidationEnabled" value="true" />
+  <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+  
+  <!--Memcached Key标识-->
+  <add key="Memcached.ServerCode" value="ERP" />
+  <!--Memcached 缓存服务地址-->
+  <add key="Memcached.ServerList" value="127.0.0.1:11211" />
+
+  <!--Web资源请求地址-->
+  <add key="FileWebPath" value="http://192.168.2.34/ERPAPI"/>
+  <!--保存文件物理路径-->
+  <add key="FileLocalPath" value="E:/project/ERP_New/ERP/ERP.WebSite/UploadFile"/>
+  <!-- 短信平台企业号-->
+  <add key="x_eid" value="11988"/>
+  <!-- 短信平台账号 -->
+  <add key="x_uid" value="kasheng"/>
+  <!-- 短信平台密码32MD5 -->
+  <add key="x_pwd" value="e306081d29de85a9c1fce8701f159952"/>
+  <!--短信频率时间范围 10分钟时间内-->
+  <add key="short_date" value="10"/>
+  <!--短信频率次数-->
+  <add key="short_count" value="10"/>
+  <!-- 短信黑名单过期时间分钟 -->
+  <add key="blackDate" value="30"/>
+  
+  <!--密码错误时间范围 5分钟时间内-->
+  <add key="member_log_date" value="5"/>
+  <!--密码错误次数-->
+  <add key="member_log_count" value="5"/>
+
+  <!--是否打开授权访问机制 是：ture, 否：false-->
+  <add key="AuthIsOpen" value="false"/>
+  <!--客户端加密字符串-->
+  <add key="encryption_key" value="sKnc46B3$D68a#4e8F@aB7v^2cQd3cEb47b9"/>
+  <!--接口访问的过期时间 单位：分钟-->
+  <add key="interface_outtime" value="4"/>
+  <!--是否允许模拟器访问 是：ture, 否：false-->
+  <add key="allow_simulate_access" value="true"/>
+</appSettings>

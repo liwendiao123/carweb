@@ -1,0 +1,183 @@
+﻿
+@{
+//Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>菜单管理</title>
+</head>
+<body>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget box light-grey">
+                <div class="widget-title">
+                    <div class="actions">
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="Audit1()"><i class="icon-pencil"></i>&nbsp;批量通过</a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="row-fluid">
+                        <form class="form-horizontal" action="javascript:void(0)">
+                            <div class="control-group">
+                                <div class="controls controls-cus">
+                                    <input id="txtSearch" type="text" class="input-xlarge" style="width:220px;" />
+                                    <a id="gritter-remove-all" class="btn btn-info" href="javascript:void(0)" onclick="PageClick(1)"><i class="icon-search"></i>&nbsp;搜索</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table-bordered table table-striped table-hover" id="tabInfo">
+                        <thead>
+                            <tr class="widget-title1">
+                                <th style="width: 8px;"><input type="checkbox" class="group-checkable" onclick="SelectAll(this)" /></th>
+                                <th>序号</th>
+                                <th>编号</th>
+                                <th>车型</th>
+                                <th>品牌</th>
+                                <th>报价</th>
+                                <th>上牌日期</th>
+                                <th>发布日期</th>
+                                <th style="width: 120px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="10" style="text-align:center">
+                                    加载中。。。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row-fluid" id="mypager">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            PageClick(1);
+        });
+        function controller() {
+            return '@Url.Content("~/Car/CarAudit/")';
+        }
+        function PageClick(pageIndex, pageSize)
+        {
+            erp.loading();
+            pageSize = pageSize == undefined ? 10 : pageSize;
+            var search = $("#txtSearch").val();
+            var TypeId = $("#TypeId").val();
+            var param = {};
+            param["page"] = pageIndex;
+            param["rows"] = pageSize;
+            param["search"] = search;
+            param["TypeId"] = TypeId;
+
+            $.ajax({
+                url: controller()+"GetList",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    var json = result;
+                    var Html = "";
+                    var index = 1;
+                    if (json.Data != undefined && json.Data.length > 0) {
+                        $(json.Data).each(function (i, item) {
+                            Html += "<tr class=\"odd gradeX\">";
+                            Html += "<td>";
+                            Html += '<input id="checkedId" name="checkedId" type="checkbox" value="' + item.Id + '">';
+                            Html += "</td>";
+                            Html += "<td>" + index + "</td>";
+                            Html += "<td>" + item.CarNo + "</td>";
+                            Html += "<td>" + item.TypeName + "</td>";
+                            Html += "<td>" + item.BrandName + item.SeriesName + item.CarName + "</td>";
+                            Html += "<td>" + item.RetailPrice + "万</td>";
+                            Html += "<td>" + erp.newDate(item.LicenseTime) + "</td>";
+                            Html += "<td>" + erp.newDateFormate(item.CreateTime) + "</td>";
+                            Html += "<td style='text-align:center'>";
+                            Html += "<a href=\"javascript:void(0)\" onclick=\"Audit('" + item.Id + "')\">审核</a>";
+                            Html += "</td>";
+                            Html += "</tr>";
+                            index++;
+                        });
+                    }
+                    else {
+                        Html += '<tr><td colspan="10" style="text-align:center">暂无数据</td></tr>';
+                    }
+                    $("#tabInfo tbody").html(Html);
+                    $("#mypager").pager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: pageSize, buttonClickCallback: PageClick });
+                }
+            });
+        }
+        function SelectAll(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", true);
+            } else {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", false);
+            }
+        }
+        function Audit1() {
+            var items = [];
+            $("#tabInfo").children("tbody").find("input[type='checkbox']").each(function (i, item) {
+                var flag = $(item).attr("checked");
+                if (flag || flag == "checked") {
+                    var cateNum = $(item).val();
+                    items.push(cateNum);
+                }
+            });
+            if (items.length == 0) {
+                $.jBox.tip("请选择要批量通过选中数据", "warn");
+                return false;
+            }
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+                    var param = {};
+                    param["Id"] = items.join(",");
+                    param["Status"] = "1";
+                    param["AuditExplan"] = "批量操作";
+                    $.ajax({
+                        url: controller() + "Audit",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                PageClick(1);
+                                $.jBox.tip("保存成功！", "success");
+                            } else {
+                                $.jBox.tip("保存失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要批量通过选中数据？", "提示", submit);
+        }
+        function Audit(Id) {
+            Id = Id == undefined ? "" : Id;
+            $.jBox.open("get:" + controller() + "Create?Id=" + Id, "车源审核", 800, 650, {
+                buttons: { "审核通过": 1, "审核不通过": 2, "关闭": 3 }, submit: function (v, h, f) {
+                    if (v == 2) {
+                        var Reason = h.find("#AuditExplan").val();
+                        if (Reason == undefined || Reason == "") {
+                            $.jBox.tip("审核意见不能为空", "warn");
+                            return false;
+                        }
+                    }
+                    if (v == 3) {
+                        return true;
+                    } else {
+                        window.Save(v);
+                        return false;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

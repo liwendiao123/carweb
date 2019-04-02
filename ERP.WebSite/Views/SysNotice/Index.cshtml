@@ -1,0 +1,147 @@
+﻿
+@{
+//Layout = null;
+}
+
+@model IEnumerable<UCMS.WebSite.Models.SysNoticeModels.SysNoticeModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>公告设置</title>
+</head>
+<body>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget box light-grey">
+                <div class="widget-title">
+                    <div class="actions">
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="Add()"><i class="icon-pencil"></i>&nbsp;新增</a>
+                        <a class="btn btn-danger" href="javascript:void(0)" onclick="Delete()"><i class="icon-trash"></i>&nbsp;删除</a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <table class="table-bordered table table-striped table-hover" id="tabInfo">
+                        <thead>
+                            <tr class="widget-title1">
+                                <th style="width: 8px;"><input type="checkbox" class="group-checkable" onclick="SelectAll(this)" /></th>
+                                <th>序号</th>
+                                <th>标题</th>
+                                <th>是否公告</th>
+                                <th>创建时间</th>
+                                <th style="width: 150px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count() > 0)
+                            {
+                                int index = 1;
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input id="checkedId" name="checkedId" type="checkbox" value="@item.Id">
+                                        </td>
+                                        <td>@index</td>
+                                        <td>@item.Title</td>
+                                        <td>@Html.Raw(item.NoticeType==1?"是":"否")</td>
+                                        <td>@item.CreateTime</td>
+                                        <td style='text-align:center'>
+                                            <a href="javascript:void(0)" onclick="Add('@item.Id')">修改</a> | 
+                                            <a href="javascript:void(0)" onclick="Detail('@item.Id')">查看</a>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" style="text-align:center">
+                                        暂无数据。。。
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Theme/plugins/kindeditor/kindeditor-min.js"></script>
+    <script src="~/Theme/plugins/kindeditor/lang/zh_CN.js"></script>
+    <script>
+        function controller() {
+            return '@Url.Content("~/Sys/SysNotice/")';
+        }
+        function Add(Id) {
+            Id = Id == undefined ? "" : Id;
+            $.jBox.open("get:" + controller() + "Create?Id=" + Id, "编辑公告", 750, 500, {
+                buttons: { '确定': true, '关闭': false }, submit: function (v, h, f) {
+                    if (v == true) {
+                        window.Save();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+        }
+        function Detail(Id) {
+            Id = Id == undefined ? "" : Id;
+            $.jBox.open("get:" + controller() + "Detail?Id=" + Id, "查看公告", 700, 500, {
+                buttons: {  '关闭': false }, submit: function (v, h, f) {
+                    return true;
+                }
+            });
+        }
+
+        function SelectAll(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", true);
+            } else {
+                $("#tabInfo").children("tbody").find("input[type='checkbox']").attr("checked", false);
+            }
+        }
+        function Delete() {
+            var items = [];
+            $("#tabInfo").children("tbody").find("input[type='checkbox']").each(function (i, item) {
+                var flag = $(item).attr("checked");
+                if (flag || flag == "checked") {
+                    var cateNum = $(item).val();
+                    items.push(cateNum);
+                }
+            });
+            if (items.length == 0) {
+                $.jBox.tip("请选择要删除的数据", "warn");
+                return false;
+            }
+
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+                    var param = {};
+                    param["checkedId"] = items.join(",");
+
+                    $.ajax({
+                        url: controller()+"Delete",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                $.jBox.tip("删除成功！", "success");
+                                location.reload()
+                            } else {
+                                $.jBox.tip("删除失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要做删除操作？", "提示", submit);
+        }
+    </script>
+</body>
+</html>

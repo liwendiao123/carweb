@@ -1,0 +1,180 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace UCMS.WebApp.Controllers
+{
+    public class HomeController : Controller
+    {
+        Provider.CarInfoProvider provider = new Provider.CarInfoProvider();
+        // GET: Home
+        public ActionResult Index(string HopePrice, string UseYears, string CarType, string Search)
+        {
+            #region 下拉
+            var PriceItem = new List<SelectListItem>();
+            PriceItem.Add(new SelectListItem { Text = "价格", Value = "0", Selected = string.IsNullOrEmpty(HopePrice) ? true : HopePrice == "0" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "5万以下", Value = "1", Selected = HopePrice == "1" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "5-10万", Value = "2", Selected = HopePrice == "2" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "10-15万", Value = "3", Selected = HopePrice == "3" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "15-25万", Value = "4", Selected = HopePrice == "4" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "25-40万", Value = "5", Selected = HopePrice == "5" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "40-50万", Value = "6", Selected = HopePrice == "6" ? true : false });
+            PriceItem.Add(new SelectListItem { Text = "50万以上", Value = "7", Selected = HopePrice == "7" ? true : false });
+
+            var YearItme = new List<SelectListItem>();
+            YearItme.Add(new SelectListItem { Text = "车龄", Value = "0", Selected = string.IsNullOrEmpty(UseYears) ? true : UseYears == "0" ? true : false });
+            YearItme.Add(new SelectListItem { Text = "1年内", Value = "1", Selected = UseYears == "1" ? true : false });
+            YearItme.Add(new SelectListItem { Text = "1-2年", Value = "2", Selected = UseYears == "2" ? true : false });
+            YearItme.Add(new SelectListItem { Text = "3-5年", Value = "3", Selected = UseYears == "3" ? true : false });
+            YearItme.Add(new SelectListItem { Text = "5年以上", Value = "4", Selected = UseYears == "4" ? true : false });
+
+            var TypeItem = CarTypeItem(Common.ToolHelper.ConvertToLong(CarType), true);
+            #endregion
+            ViewBag.PriceItem = PriceItem;
+            ViewBag.YearItme = YearItme;
+            ViewBag.TypeItem = TypeItem;
+            var list = provider.GetList(Common.ToolHelper.ConvertToLong(CarType), Common.ToolHelper.ConvertToInt(UseYears), Common.ToolHelper.ConvertToInt(HopePrice), 1, Search).ToList();
+            foreach (var item in list)
+            {
+                item.PhotoURL = new Common.FileHelper().GetFileUrl(item.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext);
+            }
+            return View(list);
+        }
+        /// <summary>
+        /// 车型下拉框
+        /// </summary>
+        /// <param name="TypeId"></param>
+        /// <param name="IsShowAll"></param>
+        /// <param name="IsSelect"></param>
+        /// <returns></returns>
+        public static List<SelectListItem> CarTypeItem(long TypeId, bool IsShowAll)
+        {
+            var list = new List<SelectListItem>();
+            if (IsShowAll)
+            {
+                list.Insert(0, new SelectListItem() { Text = "车型", Value = UCMS.Common.Constant.LONG_DEFAULT.ToString(), Selected = false });
+            }
+            var tb = new Cache.CarTypeCache().Get(Common.FormsTicket.SystemCode);
+            foreach (var item in tb)
+            {
+                list.Add(new SelectListItem
+                {
+                    Text = item.TypeName,
+                    Value = item.Id.ToString()
+                });
+            }
+            foreach (var item in list)
+            {
+                if (item.Value == TypeId.ToString())
+                {
+                    item.Selected = true;
+                    break;
+                }
+            }
+            return list;
+        }
+        public ActionResult GetList(FormCollection collection)
+        {
+            var CarType = Common.ToolHelper.ConvertToLong(collection["CarType"]);
+            var Search = collection["Search"];
+            var UseYears = Common.ToolHelper.ConvertToInt(collection["UseYears"]);
+            var HopePrice = Common.ToolHelper.ConvertToInt(collection["HopePrice"]);
+            var page = Common.ToolHelper.ConvertToInt(collection["page"]);
+            var list = provider.GetList(CarType, UseYears, HopePrice, page, Search);
+            var str = new System.Text.StringBuilder();
+            foreach (var item in list)
+            {
+                /*
+                 * 
+                            <li>
+                                <a href="~/Home/carinfo?id=@item.Id">
+                                    <table>
+                                        <tr>
+                                            <th><img src="@item.PhotoURL" /></th>
+                                            <td style="width:62%;">
+                                                <h1>车辆型号：@Html.Raw(item.BrandName + item.SeriesName + item.CarName)</h1><br /><span>@item.Odometer / @Html.Raw(item.LicenseTime.ToString("yyyy-M"))</span><br /><label>￥@Html.Raw(item.RetailPrice)万元</label>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </a>
+                            </li>
+                 */
+                str.Append("<li>");
+                str.Append("<a href='/Home/carinfo?id="+item.Id+"'>");
+                str.Append("<table>");
+                str.Append("<tr>");
+                str.Append("<th><img src="+ new Common.FileHelper().GetFileUrl(item.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext) + " /></th>");
+                str.Append("<td style='width:62%;'>");
+                str.Append("<h1>车辆型号："+item.BrandName + item.SeriesName + item.CarName+"</h1><br /><span>"+item.Odometer+" / "+item.LicenseTime.ToString("yyyy-M")+"</span><br /><label>￥"+item.RetailPrice+"万元</label>");
+                str.Append("</td>");
+                str.Append("</tr>");
+                str.Append("</table>");
+                str.Append("</a>");
+                str.Append("</li>");
+            }
+            return Content(str.ToString());
+        }
+
+        public ActionResult CarInfo(long? Id)
+        {
+            var model = new Models.HomeModels.CarInfoModel();
+            if (Id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                var item = provider.GetCarById(Id.Value);
+                if (item.AuditStatus != (int)Common.EnumModel.EAuditStatus.Ok)
+                {
+                    return RedirectToAction("Index");
+                }
+                var pt = provider.GetCarPhotoById(item.Id);
+                var photo = new List<Models.HomeModels.PhotoModel>();
+                foreach (var p in pt)
+                {
+                    photo.Add(new Models.HomeModels.PhotoModel
+                    {
+                        Id = p.Id,
+                        URL = new Common.FileHelper().GetFileUrl(p.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    });
+                }
+                model = new Models.HomeModels.CarInfoModel
+                {
+                    Id = item.Id.ToString(),
+                    CarNo = item.CarNo,
+                    CreateTime = item.CreateTime,
+                    SweptVolume = item.SweptVolume,
+                    CarColor = item.CarColor,
+                    CarName = item.CarName,
+                    LicenseTime = item.LicenseTime,
+                    Odometer = item.Odometer,
+                    Remark = item.Remark,
+                    RetailPrice = item.RetailPrice,
+                    BrandName = item.BrandName,
+                    SeriesName = item.SeriesName,
+                    TypeName = item.TypeName,
+                    IsRepay = item.IsRepay == 1 ? "(还价不多)" : "",
+                    Transmission = Common.EnumHelper.GetEnumName<Common.EnumModel.ETransmission>(item.Transmission),
+                    Fuel = Common.EnumHelper.GetEnumName<Common.EnumModel.EFuelType>(item.Fuel),
+                    EmissionStandards = Common.EnumHelper.GetEnumName<Common.EnumModel.EEmissionStandards>(item.EmissionStandards),
+                    ProductAddress = Common.EnumHelper.GetEnumName<Common.EnumModel.EProductAddress>(item.ProductAddress),
+                    PhotoURL = new Common.FileHelper().GetFileUrl(item.PhotoURL, Common.FileConfig.CarPhotoPath, this.HttpContext),
+                    Photo = photo
+                };
+                if (Common.FormsTicket.UserId > 0)
+                {
+                    var u = new Provider.UserBasisProvider().GetUser(item.UserId);
+                    model.Contact = "<span>QQ：" + u.QQ + "</span><span>微信：" + u.Weixin + "</span><span>电话：" + u.Mobile + "</span>";
+                }
+                else
+                {
+                    model.Contact = "<span>联系方式请登录查看</span>";
+                }
+            }
+            return View(model);
+        }
+    }
+}

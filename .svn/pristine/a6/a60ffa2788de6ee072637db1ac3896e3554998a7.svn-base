@@ -1,0 +1,99 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <link href="~/Content/base.css" rel="stylesheet" />
+    <link href="~/Content/cs.css" rel="stylesheet" />
+    <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
+    <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
+    <script src="~/Theme/js/jweixin-1.2.0.js"></script>
+    <script src="~/Theme/js/function.js"></script>
+    <style>
+        tr{height:35px;}</style>
+</head>
+<body>
+    <div class="carinfo clearfix">
+        <div class="carinfo3t clearfix">登录</div>
+        <div class="carinfo3 clearfix">
+            <table>
+                <tbody>
+                    <tr>
+                        <th>账号：</th>
+                        <td>
+                            <input type="text" id="input-username" name="input-username" placeholder="账号" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>密码：</th>
+                        <td>
+                            <input type="password" id="input-password" name="input-password" placeholder="密码" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>
+                            <span id="login-btn" style="border: solid 1px #a7a4a4;font-size: 14px;box-sizing: border-box;padding: 3px 5px 3px 5px;border-radius: 3px;background-color: #e7ece8;color: red;cursor: pointer;">登录</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>无帐户浏览真实车源 
+                            <a href="~/Mobile" style="border: solid 1px #a7a4a4;font-size: 14px;box-sizing: border-box;padding: 3px 5px 3px 5px;border-radius: 3px;background-color: #e7ece8;color: red;cursor: pointer;">点这里</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#input-password").keydown(function (e) {
+                if (e.which == 13) {
+                    Login();
+                }
+            });
+
+            $("#login-btn").click(function () {
+                Login();
+            });
+        });
+        function Login()
+        {
+            var loginCode = $("#input-username").val();
+            var password = $("#input-password").val();
+            if (loginCode=="") {
+                alert("请输入账号");
+                return false;
+            }
+            if (password=="") {
+                alert("请输入密码");
+                return false;
+            }
+            var param = {};
+            param["loginCode"] = loginCode;
+            param["password"] = password;
+            $.ajax({
+                url: "@Url.Content("~/Mobile")/Login?t=" + Math.random(),
+                data: param,
+                type: "post",
+                success: function (msg) {
+                    if (msg == "1") {
+                        window.location.href = "@Url.Content("~/Mobile")";
+                    } 
+                    else {
+                        alert("登录失败,用户名或密码错误！");
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

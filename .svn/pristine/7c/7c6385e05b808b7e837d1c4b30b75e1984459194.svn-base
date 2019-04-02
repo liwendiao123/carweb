@@ -1,0 +1,223 @@
+
+    body {
+        color: #333;
+        font-size: 14px;
+        min-width:1000px;
+    }
+
+    a {
+        color: #036;
+        cursor: pointer;
+    }
+
+    .pBody {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .pTop {
+        min-height: 144px;
+        text-align: center;
+    }
+
+        .pTop .tUp {
+            height: 144px;    background-color: #e6e6e6;
+            width:100%;overflow:hidden;
+        }
+
+        .pTop .tConten {
+            height: 38px;
+            background-color: #297EC7;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+            .pTop .tConten .tMenu {
+                margin: 0 auto;
+                width: 1000px;
+                padding: 0px;
+                text-align: center;
+            }
+
+                .pTop .tConten .tMenu>a {
+                    padding: 0 15px;
+                    line-height: 38px;
+                    overflow: hidden;
+                    color: white;
+                    text-decoration: none;
+                    float: left;
+                }
+
+                    .pTop .tConten .tMenu> a:hover, a.here {
+                        background: #31AAFF;
+                    }
+
+        .pTop .tConten {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .pTop .tBotom {
+            width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            border: 1px solid #ccc9c9;
+        }
+
+            .pTop .tBotom .dTop {
+                border-bottom: 1px solid #ccc9c9;
+                height: 41px;
+                display:inline-block;
+                background-color: #f3f3f3;    width: 100%;
+            }
+
+                .pTop .tBotom .dTop > div {
+                    text-decoration: none;
+                    line-height: 35px;
+                    background-color: white;
+                    margin: 5px 0px 0px 5px;
+                    padding: 0px 20px 0px 20px;
+                    cursor: pointer;
+                    border: 1px solid #ccc9c9;
+                    border-bottom: 0px;
+                    float: left;
+                }
+
+                .pTop .tBotom .dTop div.here {
+                    line-height: 36px;
+                    color: #f60;
+                    font-weight: bold;
+                }
+
+        .pTop .dContent a {
+            display: inline-block;
+            padding: 0 10px;
+            line-height: 30px;
+            word-break: keep-all;
+            text-decoration: none;
+        }
+
+            .pTop .dContent a:hover {
+                color: #f60;
+            }
+
+        .pTop .tList {
+            width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            margin-top: 10px;    background-color: #fafcff;
+        }
+
+    .pContent {
+        width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5px;
+    }
+
+        .pContent > div {
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            width:100%;
+            display: inline-block;
+        }
+
+        .pContent .pTitle {
+            background-color: #eeeeee;
+            line-height: 50px;
+            display: inline-block;
+            width: 1000px;
+            background: url(../../Theme/img/line.gif) repeat-x;
+        }
+
+    .pFoot {
+        width: 1000px;
+        margin-top: 10px;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .pPage {
+        width: 1000px;
+        margin-top: 5px;
+        margin-left: auto;
+        margin-right: auto;    text-align: right;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+
+    select {
+        width: 100px;
+    }
+
+    input {
+        width: 100px;
+    }
+
+    .tableList {
+        width: 100%;
+        font-size: 14px;
+    }
+
+        .tableList tbody tr {
+            border-bottom: 1px solid #eeeeee;
+            cursor:pointer;
+        }
+
+        .tableList th {
+            height: 28px;
+            padding: 0 5px;
+            border-bottom: 1px dotted #ddd;
+            background: #f5f5f5;
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .tableList td {
+            height: 35px;
+            padding: 0 5px;
+            border-bottom: 1px dotted #ddd;
+            width: 200px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .pTop .tConten .tMenu>span {
+                    padding: 0 15px;
+                    line-height: 38px;
+                    overflow: hidden;
+                    color: white;
+                    text-decoration: none;
+                    float: right;
+                    cursor:pointer;    background-color: #ff6600;
+                }
+    .pTop .tConten .tMenu > div {
+        float:right;
+    }
+    .pTop .tConten .tMenu > div span,.login {
+                    padding: 0 15px;
+                    line-height: 38px;
+                    overflow: hidden;
+                    color: white;
+                     background-color: #ff6600;
+                    display:inline-block;
+    }
+    .login:hover{text-decoration: underline;}
+    .login:hover{color: white;}
+
+    .sort{
+            line-height: 30px;
+    margin-left: 10px;
+    }
+    .sort a{
+        margin-left:5px;
+    }

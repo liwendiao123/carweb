@@ -1,0 +1,32 @@
+﻿
+<!DOCTYPE html>
+@model IEnumerable<UCMS.WebSite.Models.SysFileModels.SysFileModel>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>常用表格</title>
+    <style>
+        .pContent p{
+            margin-left:20px;
+        }
+    </style>
+</head>
+<body>
+    @Html.Partial("_Top")
+    <div class="pContent">
+        @if (Model != null && Model.Count() > 0)
+        {
+            int index = 1;
+            <div>
+                <p>常用表格</p>
+                @foreach (var item in Model)
+                {
+                    <p>@index、<a href="@item.FilePath" target="_blank">@item.FileName</a></p>
+                    index++;
+                }
+            </div>
+        }
+    </div>
+    @Html.Partial("_Foot")
+</body>
+</html>

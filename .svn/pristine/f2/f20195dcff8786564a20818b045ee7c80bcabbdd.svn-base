@@ -1,0 +1,77 @@
+﻿/* CSS Document */
+@charset "utf-8";
+/*基础标签重置*/
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend,  caption,tfoot, s{ margin:0; padding:0; border:0; font-size:1.3rem; vertical-align:baseline; font-style:normal; text-decoration:none;word-wrap: break-word;}
+input, select, textarea{font-size:1.3rem;}
+table{ border:0px; padding:0px; margin:0px; border-collapse:collapse; border-spacing:0;}
+ol,ul,li { list-style:none;}
+
+.clearfix:after {display:block; height:0; clear:both; visibility:hidden; }
+.clearfix { display:inline-block; clear:both; }/* Hides from IE-mac \*/
+* html .clearfix { height:1%; }
+.clearfix { display:block; }/* End hide from IE-mac */
+
+.fl{ float:left;}
+.fr{ float:right}
+.floatcenter{ margin-left:auto; margin-right:auto;}
+
+.radius{-moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px;}
+
+/*body样式*/
+html,body{
+	font-family: "Microsoft Yahei";
+	font-size: 62.5%;
+	line-height: 1.8rem;
+	margin: 0px;
+	padding: 0px;
+	color: #4f4f4f;
+	background-color:#ffffff;
+	background-repeat: repeat-x;
+}
+
+/*超链接*/
+a:link
+{
+	font-family: "Microsoft Yahei";
+	font-size: 1.3rem;
+	color: #4f4f4f;
+	text-decoration: none;
+}
+a:hover
+{
+	font-family: "Microsoft Yahei";
+	font-size: 1.3rem;
+	color: #0067c5;
+	text-decoration:none;
+}
+a:visited
+{
+	font-family: "Microsoft Yahei";
+	font-size: 1.3rem;
+	color: #4f4f4f;
+	text-decoration: none;
+}
+
+
+/*总体宽度*/
+.w
+{
+	width:100%;
+	height:auto;
+}
+
+/*省略号截断*/
+.textHidden
+{
+	display:block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	-moz-text-overflow: ellipsis; /* for Firefox */ 
+    -o-text-overflow: ellipsis;    /* for Opera */ 
+}
+/*
+.textHidden a:after,.textHidden a after
+{
+	content:"...";
+}*/

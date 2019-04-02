@@ -1,0 +1,53 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebSite.Models.MenuBasisModels.MenuBasisModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+        @Html.HiddenFor(c => c.Id)
+        <table class="formtab_user">
+            <tbody>
+                <tr>
+                    <th>菜单名称：</th>
+                    <td>
+                        @Html.TextBoxFor(c => c.MenuName, new { @class = "input-medium" })
+                    </td>
+                    <th>样式：</th>
+                    <td>
+                        @Html.TextBoxFor(c => c.MenuIcon, new { @class = "input-medium" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>控制器：</th>
+                    <td>
+                        @Html.TextBoxFor(c => c.ControllerName, new { @class = "input-medium" })
+                    </td>
+                    <th>Action：</th>
+                    <td>
+                        @Html.TextBoxFor(c => c.ActionName, new { @class = "input-medium" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>排序：</th>
+                    <td>
+                        @Html.TextBoxFor(c => c.MenuSort, new { @class = "input-medium" })
+                    </td>
+                    <th>上级菜单：</th>
+                    <td>
+                        @Html.DropDownList("ParentId", ViewBag.MenuItem as List<SelectListItem>, new { @class = "input-medium" })
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

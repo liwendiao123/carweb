@@ -1,0 +1,142 @@
+﻿
+@{
+Layout = null;
+}
+@model IEnumerable<UCMS.WebSite.Models.MenuBasisModels.MenuOperateModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>菜单操作码</title>
+</head>
+<body>
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="widget box light-grey">
+                <div class="widget-title">
+                    <div class="actions">
+                        @Html.Hidden("MenuId", ViewBag.MenuId as string)
+                        <a class="btn btn-primary" href="javascript:void(0)" onclick="Add1()"><i class="icon-pencil"></i>&nbsp;新增</a>
+                        <a class="btn btn-danger" href="javascript:void(0)" onclick="Delete1()"><i class="icon-trash"></i>&nbsp;删除</a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <table class="table-bordered table table-striped table-hover" id="tabInfo1">
+                        <thead>
+                            <tr class="widget-title1">
+                                <th style="width: 8px;"><input type="checkbox" class="group-checkable" onclick="SelectAll1(this)"  /></th>
+                                <th class="hidden-480">排序号</th>
+                                <th class="hidden-480">操作名称</th>
+                                <th class="hidden-480">操作码</th>
+                                <th style="width: 120px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count() > 0)
+                            {
+                                foreach (var item in Model)
+                                {
+                                <tr>
+                                    <td>
+                                        <input id="checkedId" name="checkedId" type="checkbox" value="@item.Id">
+                                    </td>
+                                    <td>@item.OperateSort</td>
+                                    <td>@item.OperateName</td>
+                                    <td>@item.OperateCode</td>
+                                    <td style='text-align:center'><a href="javascript:void(0)" onclick="Add1('@item.Id')">修改</a></td>
+                                </tr>
+                                }
+                            }
+                            else
+                            {
+                            <tr>
+                                <td colspan="10" style="text-align:center">
+                                    暂无数据。。。
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+        });
+        function controller() {
+            return '@Url.Content("~/Sys/MenuBasis/")';
+        }
+        //TODO：jbox弹出框的方法会与父界面有冲突  暂时以不同命名解决  后续在处理
+        function Add1(OperateId) {
+            MenuId = $("#MenuId").val();
+            OperateId = OperateId == undefined ? "" : OperateId;
+            $.jBox.open("get:" + controller() + "OperateCreate?MenuId=" + MenuId + "&OperateId=" + OperateId, "编辑操作码", 400, 300, {
+                buttons: { '<hd lang_l="lc_sure">确定</hd>': true, '<hd lang_l="lc_close">关闭</hd>': false }, submit: function (v, h, f) {
+                if (v == true) {
+                    var iframeHtml = window.frames["documentForm"];//获取子窗口的句柄iframeHtml.ownerDocument.defaultView.SaveOperate
+                    iframeHtml.ownerDocument.defaultView.SaveOperate();
+                    return false;
+                } else {
+                    return true;
+                }
+            } });
+        }
+        //关闭当前窗体并重启一个窗体相当于刷新 TODO：$.jBox.close()每次只会关闭最顶级的窗体
+        function JClose(MenuId)
+        {
+            $.jBox.close();
+            Operate(MenuId);
+        }
+        function SelectAll1(item) {
+            var flag = $(item).attr("checked");
+            if (flag || flag == "checked") {
+                $("#tabInfo1").children("tbody").find("input[type='checkbox']").attr("checked", true);
+            } else {
+                $("#tabInfo1").children("tbody").find("input[type='checkbox']").attr("checked", false);
+            }
+        }
+        function Delete1() {
+            var items = [];
+            $("#tabInfo1").children("tbody").find("input[type='checkbox']").each(function (i, item) {
+                var flag = $(item).attr("checked");
+                if (flag || flag == "checked") {
+                    var cateNum = $(item).val();
+                    items.push(cateNum);
+                }
+            });
+            if (items.length == 0) {
+                $.jBox.tip("请选择要删除的数据", "warn");
+                return false;
+            }
+
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+                    var MenuId = $("#MenuId").val();
+                    var param = {};
+                    param["checkedId"] = items.join(",");
+                    param["MenuId"] = MenuId;
+
+                    $.ajax({
+                        url: controller()+"OperateDelete",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                $.jBox.close();
+                                JClose(MenuId);
+                                $.jBox.tip("删除成功！", "success");
+                            } else {
+                                $.jBox.tip("删除失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要做删除操作？", "提示", submit);
+        }
+    </script>
+</body>
+</html>

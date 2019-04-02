@@ -1,0 +1,37 @@
+﻿
+<link href="~/Theme/css/home.css" rel="stylesheet" />
+<div class="pTop">
+    <div class="tUp">
+        <div style="width:1440px;height:144px;background:url(@ViewBag.HomeLogo);margin-right: auto;margin-left: -720px;position: relative;
+    left: 50%;">
+            <h2 style="color: #ff6600;font-weight: bold;letter-spacing: 10px;display: inline-block;margin-top: 65px;margin-left: -600px;">@ViewBag.Title</h2>
+            <h3 style="color: #f5f5f5;margin: 0px;margin-left: 862px;margin-top: -20px;font-weight: bold;letter-spacing: 10px;">合作共赢</h3>
+        </div>
+    </div>
+    <div class="tConten">
+        <div class="tMenu">
+            <a href="~/Default/index" class="here">首页</a>
+            <a onclick="PageClick(1);">二手车信息</a>
+            <a href="~/Default/File">常用表格</a>
+            <a href="~/Default/Notice">通知公告</a>
+            <div>
+                @Html.Raw(ViewBag.User as string)
+            </div>
+        </div>
+    </div>
+    <a id="skip" href="#" target="_blank"></a>
+</div>
+<script>
+    function CarInfo(href)
+    {
+        $("#skip").attr("href", "@Url.Content("~/Default/CarInfo/")" + href)
+        document.getElementById("skip").click();
+    }
+    function MenuBlur(od, id) {
+        $("#dTop~div").removeClass("here");
+        $(od).parent().children().removeClass("here");
+        $(od).addClass("here");
+        $(".dContent").css("display", "none");
+        $("#" + id).css("display", "block");
+    }
+</script>

@@ -1,0 +1,158 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model UCMS.WebSite.Models.CarInfoModels.CarInfoModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+</head>
+<body class="dialog">
+    <div class="tab-pane active" id="widget_tab1">
+        @Html.HiddenFor(c=>c.Id)
+        <table class="dialogtab inorder_tab">
+            <tbody>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车辆识别码：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        @Html.Raw(Model.VIN)
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">行驶证：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.VehicleLicense" />
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车型：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.TypeName)
+                    </td>
+                    <td class="inorder_tdTitle">品牌：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.BrandName + Model.SeriesName + Model.CarName)
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车源主图：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.PhotoURL" />
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车源图片：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        @foreach (var item in Model.Photo)
+                        {
+                            <img onclick="javascript:showimage(this);" style="width:100px;height:110px;margin:1px;" src="@item.URL" />
+                        }
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车体颜色：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.CarColor)
+                    </td>
+                    <td class="inorder_tdTitle">车主报价：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.RetailPrice)（万元）
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">上牌日期：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.LicenseTime.ToString("yyyy-MM"))
+                    </td>
+                    <td class="inorder_tdTitle">表显里程：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.Odometer)
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">排气量：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.SweptVolume)
+                    </td>
+                    <td class="inorder_tdTitle">排放标准：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(UCMS.Common.EnumHelper.GetEnumName<UCMS.Common.EnumModel.EEmissionStandards>(Model.EmissionStandards))
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">国产进口：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(UCMS.Common.EnumHelper.GetEnumName<UCMS.Common.EnumModel.EProductAddress>(Model.ProductAddress))
+                    </td>
+                    <td class="inorder_tdTitle">变速器：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(UCMS.Common.EnumHelper.GetEnumName<UCMS.Common.EnumModel.ETransmission>(Model.Transmission))
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">燃料：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(UCMS.Common.EnumHelper.GetEnumName<UCMS.Common.EnumModel.EFuelType>(Model.Fuel))
+                    </td>
+                    <td class="inorder_tdTitle">具体说明：</td>
+                    <td class="inorder_tdContent">
+                        @Html.Raw(Model.Remark)
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle">车检报告：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        <img onclick="javascript:showimage(this);" style="width:100px;height:110px;" src="@Model.TestReport" />
+                    </td>
+                </tr>
+                <tr class="inorder_tr">
+                    <td class="inorder_tdTitle"><font color="red">* </font>审核意见：</td>
+                    <td class="inorder_tdContent" colspan="3">
+                        @Html.TextArea("AuditExplan","")
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="img_show" class="modal hide">
+        </div>
+    </div>
+    <script src="~/Theme/js/jquery.form.js"></script>
+    <script type="text/javascript">
+        function controller() {
+            return '@Url.Content("~/Car/CarAudit/")';
+        }
+        //显示大图
+        function showimage(source) {
+            $("#img_show").html("<image src='" + $(source).attr("src") + "' class='carousel-inner img-responsive img-rounded' />");
+            $("#img_show").modal();
+        }
+        function Save(od) {
+
+            var param = {};
+            param["Id"] = $("#Id").val();
+            param["AuditExplan"] = $("#AuditExplan").val();
+            param["Status"] = od;
+
+            $.ajax({
+                url: controller() + "Audit",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    if (result.d == "1") {
+                        $.jBox.close();
+                        window.location.href = controller() + "Index";
+                        $.jBox.tip("保存成功！", "success");
+                    } else {
+                        $.jBox.tip("保存失败！", "error");
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

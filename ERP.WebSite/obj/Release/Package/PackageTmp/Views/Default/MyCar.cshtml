@@ -1,0 +1,138 @@
+﻿
+@{
+    //Layout = null;
+}
+
+@model IEnumerable<UCMS.WebSite.Models.DefaultModels.CarTypeModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>会员中心</title>
+</head>
+<body>
+    @Html.Partial("_Top1")
+    <div class="pContent">
+        <div style="line-height: 30px;
+    text-align: right;
+    background-color: #e6eff7;">
+            <span style="border: solid 1px #c1dcf5;line-height: 25px;padding: 3px 10px 3px 10px;display: inline-block;cursor: pointer;border-radius: 4px;background-color: #ff6600;;color:white;float:left;" onclick="Add()">添加车源</span>
+            车型：@Html.DropDownList("TypeId1", ViewBag.TypeItem as List<SelectListItem>) 
+            @Html.TextBox("Search1", "")
+            <span id="keyList" style="border: solid 1px #c1dcf5;line-height: 25px;padding: 3px 15px 3px 15px;display: inline-block;cursor: pointer;border-radius: 4px;background-color: #297ec7;color:white" onclick="PageClick1(1)">查询</span>
+        </div>
+        <div>
+            <table class="tableList" id="mycar">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>品牌型号</th>
+                        <th>车型</th>
+                        <th>上牌日期</th>
+                        <th>交易报价</th>
+                        <th>备注</th>
+                        <th>变速器</th>
+                        <th>发布日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="10">加载中。。。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="pPage" id="mypager"></div>
+    @Html.Partial("_Foot")
+    <script>
+        $(document).ready(function () {
+            PageClick1(1)
+        });
+        function PageClick1(pageIndex, pageSize) {
+            erp.loading();
+            pageSize = pageSize == undefined ? 20 : pageSize;
+            var TypeId = $("#TypeId1").val();
+            var Search = $("#Search1").val();
+            var param = {};
+            param["page"] = pageIndex;
+            param["rows"] = pageSize;
+            param["TypeId"] = TypeId;
+            param["Search"] = Search;
+
+            $.ajax({
+                url: "@Url.Content("~/Default/")GetMyCar",
+                data: param,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    var json = result;
+                    var Html = "";
+                    if (json.Data != undefined && json.Data.length > 0) {
+                        $(json.Data).each(function (i, item) {
+                            Html += "<tr onmouseover=\"style.backgroundColor='#FCE6BF'\" onmouseout=\"style.backgroundColor='#ffffff'\" style=\"background-color: rgb(255, 255, 255);cursor:auto;\">";
+                            Html += "<td>" + item.CarNo + "</td>";
+                            Html += "<td>" + item.BrandName + item.SeriesName + item.CarName + "</td>";
+                            Html += "<td>" + item.TypeName + "</td>";
+                            Html += "<td>" + erp.newDate(item.LicenseTime) + "</td>";
+                            Html += "<td><font color='red'>" + item.RetailPrice + "</font>万</td>";
+                            Html += "<td>" + item.Remark + "</td>";
+                            Html += "<td>" + erp.GetEnumDesc(ETransmission, item.Transmission) + "</td>";
+                            Html += "<td>" + erp.newDateFormate(item.CreateTime) + "</td>";
+                            Html += "<td style='text-align:center'>";
+                            if (item.AuditStatus == 0) {
+                                Html += "<a href=\"javascript:void(0)\" onclick=\"Add('" + item.Id + "')\">编辑 </a>";
+                            }
+                            if (item.AuditStatus == 1 && item.CarStatus == 0) {
+                                Html += "<a href=\"javascript:void(0)\" onclick=\"SoldOut('" + item.Id + "')\"> 已售</a> ";
+                            }
+                            Html += "<a href=\"javascript:void(0)\" onclick=\"Delete('" + item.Id + "')\"> 删除</a>";
+                            Html += "</td>";
+                            Html += "</tr>";
+                        });
+                    }
+                    else {
+                        Html += '<tr><td colspan="20" style="text-align:center">暂无数据</td></tr>';
+                    }
+                    $("#mycar tbody").html(Html);
+                    $("#mypager").mypager({ pagenumber: pageIndex, recordCount: json.RowCount, pageSize: pageSize, buttonClickCallback: PageClick1 });
+                }
+            });
+        }
+        function Add(Id) {
+            Id = Id == undefined ? "" : Id;
+            window.location.href = controller() + "Create/" + Id;
+        }
+        function Delete(Id) {
+            Id = Id == undefined ? "" : Id;
+            var submit = function (v, h, f) {
+                if (v == "ok") {
+                    var param = {};
+                    param["checkedId"] = Id;
+                    $.ajax({
+                        url: controller() + "Delete",
+                        data: param,
+                        type: "post",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.d == "1") {
+                                PageClick1(1);
+                                $.jBox.tip("删除成功！", "success");
+                            } else {
+                                $.jBox.tip("删除失败！", "error");
+                            }
+                        }
+                    });
+                }
+            }
+            $.jBox.confirm("确认要做删除操作？", "提示", submit);
+        }
+        function controller() {
+            return '@Url.Content("~/Default/")';
+        }
+    </script>
+</body>
+</html>

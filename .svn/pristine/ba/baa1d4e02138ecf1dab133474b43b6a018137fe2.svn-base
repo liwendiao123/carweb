@@ -1,0 +1,65 @@
+﻿
+@{
+    Layout = null;
+}
+
+@model IEnumerable<UCMS.WebSite.Models.SysNoticeModels.SysNoticeModel>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Notice</title>
+    <link href="~/Content/base.css" rel="stylesheet" />
+    <link href="~/Content/cs.css" rel="stylesheet" />
+    <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
+    <style>
+        .title{
+            text-align:center;
+        }
+        .title a{
+            margin-left:30px;
+            color:#fb0074;
+            text-decoration:underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="w floatcenter clearfix">
+        <div class="top">
+            <a href="~/Mobile"><b style="line-height:30px;margin: 5px;">@ViewBag.Title</b></a>
+            @Html.Raw(ViewBag.User)
+        </div>
+        <div class="carlist">
+            <div class="carlist1 clearfix" style="padding:5px;">
+                <div class="title">
+                    @foreach (var item in Model)
+                    {
+                        <a href="~/Mobile/Notice/@item.Id">>>@item.Title</a>
+                    }
+                </div>
+                <div>
+                    @Html.Raw(ViewBag.Content as string)
+                </div>
+            </div>
+        </div>
+        <div class="bgLine clearfix">&nbsp;</div>
+    </div>
+
+    <div class="bottom">
+        <table style="height:30px;">
+            <tbody>
+                <tr>
+                    <td><a href="~/Mobile">首页</a></td>
+                    <td><a href="~/Mobile/MyCar">我的车源</a></td>
+                    @if (UCMS.Common.FormsTicket.UserType == 1)
+                    {
+                        <td><a href="~/Mobile/AuditList">审核车源</a></td>
+                    }
+                    <td><a href="#" style="color:red;">公告</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
