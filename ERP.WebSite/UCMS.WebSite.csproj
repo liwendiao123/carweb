@@ -24,6 +24,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -988,6 +989,21 @@
     <Content Include="Theme\plugins\My97DatePicker\skin\whyGreen\datepicker.css" />
     <Content Include="Theme\plugins\My97DatePicker\skin\whyGreen\img.gif" />
     <Content Include="Theme\plugins\My97DatePicker\WdatePicker.js" />
+    <Content Include="Theme\plugins\qiniu\common\common.js" />
+    <Content Include="Theme\plugins\qiniu\component\ui.js" />
+    <Content Include="Theme\plugins\qiniu\component\widget.js" />
+    <Content Include="Theme\plugins\qiniu\images\default.png" />
+    <Content Include="Theme\plugins\qiniu\images\favicon.ico" />
+    <Content Include="Theme\plugins\qiniu\images\loading.gif" />
+    <Content Include="Theme\plugins\qiniu\js\moxie.js" />
+    <Content Include="Theme\plugins\qiniu\js\moxie.min.js" />
+    <Content Include="Theme\plugins\qiniu\js\Moxie.swf" />
+    <Content Include="Theme\plugins\qiniu\js\plupload.full.min.js" />
+    <Content Include="Theme\plugins\qiniu\qiniu.min.js" />
+    <Content Include="Theme\plugins\qiniu\scripts\uploadWithForm.js" />
+    <Content Include="Theme\plugins\qiniu\scripts\uploadWithOthers.js" />
+    <Content Include="Theme\plugins\qiniu\scripts\uploadWithSDK.js" />
+    <Content Include="Theme\plugins\qiniu\style\index.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1183,6 +1199,8 @@
     <Content Include="Views\Mobile\Notice.cshtml" />
     <Content Include="Views\Mobile\AuditList.cshtml" />
     <Content Include="Views\Mobile\AuditInfo.cshtml" />
+    <Content Include="Theme\plugins\qiniu\js\Moxie.xap" />
+    <Content Include="Views\Mobile\Test.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

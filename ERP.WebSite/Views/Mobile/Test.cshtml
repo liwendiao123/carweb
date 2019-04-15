@@ -1,0 +1,75 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>表单小图片上传</title>
+    <script src="http://code.jquery.com/jquery-1.4.1.min.js"></script>
+    <script>var imgurl = "";
+            function getPhoto(node) {
+                var imgURL = "";
+                try{
+                    var file = null;
+                    if(node.files && node.files[0] ){
+                        file = node.files[0];
+                    }else if(node.files && node.files.item(0)) {
+                        file = node.files.item(0);
+                    }
+                    //Firefox 因安全性问题已无法直接通过input[file].value 获取完整的文件路径
+                    try{
+                        imgURL =  file.getAsDataURL();
+                    }catch(e){
+                        imgRUL = window.URL.createObjectURL(file);
+                    }
+                }catch(e){
+                    if (node.files && node.files[0]) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            imgURL = e.target.result;
+                        };
+                        reader.readAsDataURL(node.files[0]);
+                    }
+                }
+                creatImg(imgRUL,file.name);
+                return imgURL;
+            }
+
+            function creatImg(imgRUL,fileName){
+                console.log(fileName);
+                $("input[name=key]").val(fileName);
+                var textHtml = "<img src='"+imgRUL+"'width='40px' height='40px'/>";
+                $("span").html(textHtml);
+            }
+
+            function upload(){
+                $.ajax({
+                    url: '@Url.Action("GetUploadToken", "Common")',
+                    //data:{"key": $("input[name=key]").val()},
+                    type: "GET",
+                     success:function (data) {//请求成功后调用的函数
+                         $("input[name=token]").val(data.Token);
+                         $("input[name=key]").val(data.Bucket);
+                           document.getElementById('form1').submit();
+                     },
+                     error:function () {//请求失败后调用的函数
+                        console.log(err);
+                     }
+                 });
+            }</script>
+</head>
+<body>
+    <form id="form1" method="post" action="http://upload-z2.qiniup.com/"
+          enctype="multipart/form-data">
+        <input name="key" value="" type="hidden" />
+        <input name="token" value="" type="hidden" />
+        <input id="input-file" name="file" class="upload" type="file" value="" onchange="getPhoto(this)">
+        <input type="button" value="上传" onclick="upload()">
+    </form>
+    <br />
+    <span> </span>
+</body>
+</html>

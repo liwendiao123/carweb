@@ -15,52 +15,69 @@
     <link href="~/Content/cs.css" rel="stylesheet" />
     <link href="~/Content/lanrenzhijia.css" rel="stylesheet" />
     <link href="~/Content/mobiscroll-2.13.2.full.min.css" rel="stylesheet" />
-    <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
-    <script src="~/Theme/js/jweixin-1.2.0.js"></script>
-    <script src="~/Theme/js/function.js"></script>
-    <script src="~/Theme/js/mobiscroll-2.13.2.full.min.js"></script>
+
+
     <style>
-        #ImgContent {min-height:115px;}
-        #ImgContent>div
-        {
-            position:relative;
-            display:inline-block;
-            width:101px;   
-            text-align: center;
-            margin-left:5px;
-            margin-top:5px;
+        #ImgContent {
+            min-height: 115px;
         }
-        #ImgContent>img
-        {
-            cursor:pointer;
-        }
-        #ImgContent span {
-            cursor: pointer;
-            border: solid 1px #c0c0c0;
-            padding: 1px 10px 1px 10px;
-            margin-top: 5px;
-            display: inline-block;-moz-user-select: none;-khtml-user-select: none;user-select: none;
-        }
-        #ImgContent font {
-            cursor: pointer;
-            border: solid 1px #c0c0c0;
-            padding: 1px 5px 1px 5px;
-            margin-top: 5px;
-            display: inline-block;
-            margin-right:2px;-moz-user-select: none;-khtml-user-select: none;user-select: none;
-            position:absolute;
-            top:0px;
-            right:0px;    background-color: #efefef;
-        }
+
+            #ImgContent > div {
+                position: relative;
+                display: inline-block;
+                width: 101px;
+                text-align: center;
+                margin-left: 5px;
+                margin-top: 5px;
+            }
+
+            #ImgContent > img {
+                cursor: pointer;
+            }
+
+            #ImgContent span {
+                cursor: pointer;
+                border: solid 1px #c0c0c0;
+                padding: 1px 10px 1px 10px;
+                margin-top: 5px;
+                display: inline-block;
+                -moz-user-select: none;
+                -khtml-user-select: none;
+                user-select: none;
+            }
+
+            #ImgContent font {
+                cursor: pointer;
+                border: solid 1px #c0c0c0;
+                padding: 1px 5px 1px 5px;
+                margin-top: 5px;
+                display: inline-block;
+                margin-right: 2px;
+                -moz-user-select: none;
+                -khtml-user-select: none;
+                user-select: none;
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                background-color: #efefef;
+            }
+
         .hidden {
             display: none;
         }
+
         .show {
             display: inline-block;
             width: 100%;
         }
-        th{width:80px;}
-        .error{color:red;}
+
+        th {
+            width: 80px;
+        }
+
+        .error {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +85,7 @@
     {
         @Html.HiddenFor(c => c.Id)
         @Html.Hidden("filelist")
+        @Html.Hidden("qiniufilelist")
         <div class="carinfo clearfix">
             <div class="carinfo3t clearfix"><a href="javascript:history.go(-1)">《 车源管理</a></div>
             <div class="carinfo3 clearfix">
@@ -117,6 +135,8 @@
                         <tr>
                             <th>车源图片：</th>
                             <td id="ImgContent">
+                                @*<div id="pickfiles">测试按钮</div>
+                                    <button id="uploadfiles">测试上传按钮</button>*@
                                 <input type="hidden" id="TempId" name="TempId" value="0" />
                                 <input type="hidden" id="ImgList" name="ImgList" value="" />
                                 <input type="hidden" id="ImgDelete" name="ImgDelete" value="" />
@@ -245,64 +265,64 @@
         <div class="bottom" style="line-height: 30px;" id="submit" xw="1">
             提交
         </div>
+        <script src="~/Theme/js/jquery-1.8.3.min.js"></script>
+        <script src="~/Theme/js/jweixin-1.2.0.js"></script>
+        <script src="~/Theme/js/function.js"></script>
+        <script src="~/Theme/js/mobiscroll-2.13.2.full.min.js"></script>
         <script src="~/Theme/js/jquery.validate.js"></script>
         <script src="~/Theme/plugins/My97DatePicker/WdatePicker.js"></script>
         <script src="~/Theme/js/jquery.form.js"></script>
-        <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src=' https://unpkg.com/qiniu-js@<version>'></script>
+        <script src="/Theme/plugins/qiniu/js/plupload.full.min.js"></script>
+        <script src="/Theme/plugins/qiniu/qiniu.min.js"></script>
         <script>
-            let lastFile = null;
-            let sourceImage;
-            let options = {
-                quality: 0.92,
-                noCompressIfLarger: true
-                // maxWidth: 1000,
-                // maxHeight: 618
+
+
+
+            ///七牛云上传代码
+            var key, token, cimg,ckey;
+            var imgpath = '@Url.Action("GetCarImgPath", "Common")';
+            var qiniulist = new Array();
+            $.ajax({
+                url: '@Url.Action("GetUploadToken", "Common")',
+                 async: false,
+                success: function (data) {
+                   // var obj = JSON.parse(data);
+                    token = data.Token;
+                    key = data.Bucket;
+                }
+            });
+            var observer = {
+                next(res) {
+                    console.log(JSON.stringify(res));
+                },
+                error(err) {
+                    console.log(JSON.stringify(err));
+                },
+                complete(res) {
+                    console.log("上传完成：" + JSON.stringify(res));
+                    if (cimg && ckey) {
+                        v = cimg;
+
+                        $("#ImgContent").append('<div class="imgFlag"' + 'data-key="' + ckey +'"><img style="width:100px;height:110px;" src="' + window.URL.createObjectURL(v) + '"/><font onclick="ImgClose(this)">X</font></div>');
+
+                    }
+
+                }
             };
-            $("#select").change(function () {
-                options.outputType = this.files[0].type;
-                sourceImage = new Image();
-                let sourceUrl = URL.createObjectURL(this.files[0]);
-                sourceImage.src = sourceUrl;
-                sourceImage.onload = () => {
-                    compress(this.files[0]);
-                };
-            });
 
-            $('input[type="range"]').each(function () {
-                let name = $(this).attr("name");
-                $(this).val(options[name]);
-                $(this).next().text(options[name]);
-                $(this).on("change", function () {
-                    options = Object.assign(options, { [name]: +$(this).val() });
-                    $(this).next().text(options[name]);
-                    compress();
-                });
-            });
+            var config = {
+                useCdnDomain: true,
+                disableStatisticsReport: false,
+                retryCount: 6,
+                region: qiniu.region.z2
+            };
+            var putExtra = {
+                fname: "",
+                params: {},
+                mimeType: [] || null
+            };
+            //结束
 
-            function compress(file) {
-                file = file || lastFile;
-                lastFile = file;
-                URL.revokeObjectURL($(".distImage img").attr("src"));
-                URL.revokeObjectURL($(".sourceImage img").attr("src"));
-                $(".distImage img").attr("src", "");
-                $(".sourceImage img").attr("src", "");
-                $(".distImage pre").text("");
-                $(".sourceImage pre").text("");
-
-                qiniu.compressImage(file, options).then(data => {
-                    $(".distImage img").attr("src", URL.createObjectURL(data.dist));
-                    $(".sourceImage img").attr("src", URL.createObjectURL(file));
-                    $(".distImage pre").text("File size:" + (data.dist.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + data.dist.type + "\n" + "Dimensions:" + data.width + "*" + data.height + "\n" + "ratio:" + (data.dist.size / file.size).toFixed(2) * 100 + "%")
-                    $(".sourceImage pre").text("File size:" + (file.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + file.type + "\n" + "Dimensions:" + sourceImage.width + "*" + sourceImage.height)
-                }).catch(res => {
-                    console.log(res);
-                });
-            }
-
-        </script>
-        <script>
         $(document).ready(function () {
             //手机时间格式
             $("#LicenseTime").mobiscroll().date({
@@ -317,29 +337,11 @@
                     return array[0] + "年" + array[1] + "月";
                 }
             });
-            function compress(file) {
-                file = file || lastFile;
-                lastFile = file;
-                URL.revokeObjectURL($(".distImage img").attr("src"));
-                URL.revokeObjectURL($(".sourceImage img").attr("src"));
-                $(".distImage img").attr("src", "");
-                $(".sourceImage img").attr("src", "");
-                $(".distImage pre").text("");
-                $(".sourceImage pre").text("");
 
-                qiniu.compressImage(file, options).then(data => {
-                    $(".distImage img").attr("src", URL.createObjectURL(data.dist));
-                    $(".sourceImage img").attr("src", URL.createObjectURL(file));
-                    $(".distImage pre").text("File size:" + (data.dist.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + data.dist.type + "\n" + "Dimensions:" + data.width + "*" + data.height + "\n" + "ratio:" + (data.dist.size / file.size).toFixed(2) * 100 + "%")
-                    $(".sourceImage pre").text("File size:" + (file.size / 1024).toFixed(2) + "KB" + "\n" + "File type:" + file.type + "\n" + "Dimensions:" + sourceImage.width + "*" + sourceImage.height)
-                }).catch(res => {
-                    console.log(res);
-                });
-            }
             //品牌
             $("#BrandId").change(function () {
                 var BrandId = $("#BrandId").val();
-                if (BrandId != undefined && BrandId != "") {
+                if (BrandId !== undefined && BrandId !== "") {
                     var param = {};
                     param["Id"] = BrandId;
                     $.ajax({
@@ -360,31 +362,9 @@
                     $("#SeriesId").append("<option>--请选择--</option>");
                 }
             });
-            //保存
-            //$("#submit").click(function () {
-            //    if (validateForm()) {
-            //        var img = [];
-            //        $("input[name^='File']").each(function () {
-            //            var fe = this;
-            //            if ($(fe).val() != "" && $(fe).val() != undefined) {
-            //                img.push($(fe).attr("name"));
-            //            }
-            //        });
-            //        $("#ImgList").attr("value", img);
-            //        $("#ImgDelete").attr("value", imgDel);
-            //        $("#documentForm").ajaxSubmit({
-            //            success: function (data) {
-            //                if (data.d == "1") {
-            //                    window.location.href = controller() + "/MyCar";
-            //                } else {
-            //                    alert("保存失败！");
-            //                }
-            //            }
-            //        });
-            //    }
-            //});
+
             $("#submit").click(function () {
-                if ($("#submit").attr("xw") == "0")
+                if ($("#submit").attr("xw") === "0")
                 {
                     return;
                 }
@@ -398,12 +378,19 @@
                     $("#submit").html("上传中....");
                     ImgList = [];
                     var fd = new FormData();
-                    if ($("#filelist").data("data") != undefined) {
-                        for (var i = 0; i < $("#filelist").data("data").length; i++) {
-                            ImgList.push("img_" + i);
-                            fd.append("img_" + i + "", $("#filelist").data("data")[i]);
-                        }
-                    }
+                    //if ($("#filelist").data("data") !== undefined) {
+                    //    for (var i = 0; i < $("#filelist").data("data").length; i++) {
+                    //        ImgList.push("img_" + i);
+                    //        fd.append("img_" + i + "", $("#filelist").data("data")[i]);
+                    //    }
+                    //}
+
+                    $('.imgFlag').each(function () {
+                        var key = $(this).data('key');
+                        ImgList.push(key);
+
+                    });
+
                     fd.append("Id", $("#Id").val());
                     fd.append("TypeId", $("#TypeId").val());
                     fd.append("BrandId", $("#BrandId").val());
@@ -422,11 +409,11 @@
                     fd.append("Fuel", $("#Fuel").val());
                     fd.append("Remark", $("#Remark").val());
                     fd.append("TestReport", document.getElementById("TestReport").files[0]);
-                    fd.append("ImgDelete", imgDel);
+                    //fd.append("ImgDelete", imgDel);
                     fd.append("ImgList", ImgList);
 
                     $.ajax({
-                        url: "/Mobile/Save",// controller() + "/Save",
+                        url: controller() + "/Save",
                         type: "post",
                         dataType: "json",
                         data: fd,
@@ -446,16 +433,8 @@
                             $("#submit").attr("xw", "1");
                             $("#submit").html("提交");
                         }
-                    });
-                    //$("#documentForm").ajaxSubmit({
-                    //    success: function (data) {
-                    //        if (data.d == "1") {
-                    //            window.location.href = controller() + "/MyCar";
-                    //        } else {
-                    //            alert("保存失败！");
-                    //        }
-                    //    }
-                    //});
+                    })
+
                 }
             });
         });
@@ -497,11 +476,29 @@
                         alert("请上传格式 JPG、JPEG、PNG、GIF 的图片");
                         return false;
                     }
-                    compress(v);
-    
-                    fsarray.push(v);
-                    $("#ImgContent").append("<div class=\"imgFlag\"><img style=\"width:100px;height:110px;\" src=" + window.URL.createObjectURL(v) + " /><font onclick=\"ImgClose(this)\">X</font></div>");
-                })
+
+                    putExtra.fname = v.name;
+                    var tckey;
+                    $.ajax({
+                        url: imgpath + "?ext=" + ext,
+                        async: false,
+                        success: function (data) {
+                           // var obj = JSON.parse(data);
+
+                            //var ckey = "test/" + putExtra.fname;
+                            ckey = data.name;
+                            tckey = data.key;
+
+                        }
+                    });
+                    var observable = qiniu.upload(window.URL.createObjectURL(v), tckey, token, putExtra, config);
+                    var subscription = observable.subscribe(observer); // 这样传参形式也可以
+                    cimg = v;
+
+
+                    //fsarray.push(v);
+                    //$("#ImgContent").append('<div class="imgFlag"' + 'data-key="'+ '"><img style="width:100px;height:110px;" src=' + window.URL.createObjectURL(v) + '/><font onclick="ImgClose(this)">X</font></div>');
+                });
             }
             else {
                 //ie9以下不支持
@@ -517,12 +514,30 @@
                         alert("请上传格式 JPG、JPEG、PNG、GIF 的图片");
                         return false;
                     }
-                    fsarray.push(v);
-                    $("#filediv").append("<div class=\"imgFlag\"><img style=\"width:100px;height:110px;\" src='file:///" + v + "' /><font onclick=\"ImgClose(this)\">X</font></div>");
-                })
+                    putExtra.fname = v.name;
+                    var tckey;
+                    $.ajax({
+                        url: imgpath + "?ext=" + ext,
+                        async: false,
+                        success: function (data) {
+                            // var obj = JSON.parse(data);
+
+                            //var ckey = "test/" + putExtra.fname;
+                            ckey = data.name;
+                            tckey = data.key;
+
+                        }
+                    });
+                    var observable = qiniu.upload(window.URL.createObjectURL(v), tckey, token, putExtra, config);
+                    var subscription = observable.subscribe(observer); // 这样传参形式也可以
+                    cimg = v;
+
+                    //fsarray.push(v);
+                    //$("#filediv").append("<div class=\"imgFlag\"><img style=\"width:100px;height:110px;\" src='file:///" + v + "' /><font onclick=\"ImgClose(this)\">X</font></div>");
+                });
             }
             //向元素附加已选择的数据
-            $("#filelist").data("data", fsarray);
+            //$("#filelist").data("data", fsarray);
         }
         @*function AddImg()
         {

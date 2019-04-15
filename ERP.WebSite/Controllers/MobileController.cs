@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
+
 namespace UCMS.WebSite.Controllers
 {
     public class MobileController : Controller
@@ -429,20 +430,27 @@ namespace UCMS.WebSite.Controllers
                 }
             }
             #region 图片处理
-            var VehicleLicense = new Common.FileHelper().SaveImgRelative("VehicleLicense", "", Common.FileConfig.OtherPhotoPath);
-            var TestReport = new Common.FileHelper().SaveImgRelative("TestReport", "", Common.FileConfig.OtherPhotoPath);
 
+            //保存行驶证图片
+            var VehicleLicense = new Common.FileHelper().SaveImgRelative("VehicleLicense", "", Common.FileConfig.OtherPhotoPath);
+
+            //车源主图
+            var PhotoURL = new Common.FileHelper().SaveImgRelative("PhotoURL", "", Common.FileConfig.CarPhotoPath);
+
+            //车子图片
             var temp = ImgList.Split(new char[] { ',' });
             var photoId = new List<string>();
             foreach (var item in temp)
             {
-                var pid = new Common.FileHelper().SaveImgRelative(item, "", Common.FileConfig.CarPhotoPath);
-                if (!string.IsNullOrEmpty(pid))
+               // var pid = new Common.FileHelper().SaveImgRelative(item, "", Common.FileConfig.CarPhotoPath);
+                if (!string.IsNullOrEmpty(item))
                 {
-                    photoId.Add(pid);
+                    photoId.Add(item);
                 }
             }
-            var PhotoURL = new Common.FileHelper().SaveImgRelative("PhotoURL", "", Common.FileConfig.CarPhotoPath);
+
+            ///保存测试报告
+            var TestReport = new Common.FileHelper().SaveImgRelative("TestReport", "", Common.FileConfig.OtherPhotoPath);
 
             #endregion
             var t = CarTypeItem(model.TypeId, false).Where(c => c.Value == model.TypeId.ToString()).FirstOrDefault();
@@ -478,6 +486,14 @@ namespace UCMS.WebSite.Controllers
             {
                 //修改
                 carInfo.Id = Common.ToolHelper.ConvertToLong(model.Id);
+                long oid = -1;
+             long.TryParse(model.Id,out oid);
+
+                var pt = provider.GetCarPhotoById(oid);
+
+                var listDElID = pt.ToList();
+                var strlistDElID = listDElID.Where(x => !photoId.Contains(x.PhotoURL)).Select(x=>x.Id).ToList();
+                ImgDelete = string.Join(",", strlistDElID);
             }
             else
             {
@@ -510,7 +526,8 @@ namespace UCMS.WebSite.Controllers
             var line = 1;
             try
             {
-                provider.Edit(carInfo, pModel, string.IsNullOrEmpty(model.Id), ImgDelete);
+
+                provider.Edit(carInfo, pModel, string.IsNullOrEmpty(model.Id),ImgDelete);
             }
             catch (Exception ex)
             {
@@ -519,6 +536,10 @@ namespace UCMS.WebSite.Controllers
             return Json(new { d = line > 0 ? 1 : 0 });
         }
 
+        public ActionResult Test()
+        {
+            return View();
+        }
         public ActionResult Delete(string checkedId)
         {
             var ids = new List<long>();

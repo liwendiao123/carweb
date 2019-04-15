@@ -34,8 +34,8 @@ D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\bin\Debug\Newtonsoft.Json.xml
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\bin\Debug\System.Web.Mvc.xml
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\bin\Debug\Microsoft.Web.Infrastructure.xml
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\bin\Debug\zh-Hans\System.Web.Mvc.resources.dll
-D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.csprojAssemblyReference.cache
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.csproj.CoreCompileInputs.cache
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.csproj.CopyComplete
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.dll
 D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.pdb
+D:\QQFile\281256755\FileRecv\UCMS1\ERP.Common\obj\Debug\UCMS.Common.csprojAssemblyReference.cache

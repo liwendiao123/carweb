@@ -186,6 +186,7 @@ namespace UCMS.Common
         public string SaveImgRelative(string fileName, string fileId, string filePath, bool isThumbnail = false, int width = 0, int height = 0, string mode = "")
         {
             var fileUpload = HttpContext.Current.Request.Files[fileName];
+
             var FileId = "";
             if (fileUpload != null&&!string.IsNullOrEmpty(fileUpload.FileName))
             {

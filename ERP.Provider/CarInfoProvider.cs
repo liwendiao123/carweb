@@ -103,7 +103,8 @@ namespace UCMS.Provider
                         PhotoURL = model.PhotoURL,
                     });
                 }
-                db.SaveChanges();
+               var ii= db.SaveChanges();
+                Console.WriteLine(ii);
                 return db.CarInfo.Where(c => c.Id == model.Id).Update(r => new CarInfo
                 {
                     SeriesId = model.SeriesId,
@@ -130,7 +131,92 @@ namespace UCMS.Provider
             }
             return db.SaveChanges();
         }
-        
+        public int Edit(CarInfo model, List<CarPhoto> photo, bool IsAdd)
+        {
+            //TODO:暂时不用审核
+            //model.AuditStatus = 1;
+
+            //var carphoto = db.CarPhoto.Where(x => x.CarId.Equals(model.Id)).ToList();
+
+            //foreach (var item in carphoto)
+            //{
+            //    db.CarPhoto.Remove(item);
+            //}
+
+            foreach (var item in photo)
+            {
+                db.Set<CarPhoto>().Add(item);
+            }
+            if (IsAdd)
+            {
+                db.Set<CarInfo>().Add(model);
+            }
+            else
+            {
+
+               
+
+                //if (!string.IsNullOrEmpty(ImgDelete))
+                //{
+                //    //删除图片
+                //    var ids = new List<long>();
+                //    foreach (var item in ImgDelete.Split(new char[] { ',' }))
+                //    {
+                //        ids.Add(Common.ToolHelper.ConvertToLong(item));
+                //    }
+                //    db.CarPhoto.Where(c => ids.Contains(c.Id)).Update(r => new CarPhoto { IsDelete = (int)Common.EnumModel.EIsDelete.Deleted, TimeStamp = DateTime.Now });
+                //}
+                //修改行驶证
+                if (!string.IsNullOrEmpty(model.VehicleLicense))
+                {
+                    db.CarInfo.Where(c => c.Id == model.Id).Update(r => new CarInfo
+                    {
+                        VehicleLicense = model.VehicleLicense,
+                    });
+                }
+                //修改检测报告
+                if (!string.IsNullOrEmpty(model.TestReport))
+                {
+                    db.CarInfo.Where(c => c.Id == model.Id).Update(r => new CarInfo
+                    {
+                        TestReport = model.TestReport,
+                    });
+                }
+                //修改主图
+                if (!string.IsNullOrEmpty(model.PhotoURL))
+                {
+                    db.CarInfo.Where(c => c.Id == model.Id).Update(r => new CarInfo
+                    {
+                        PhotoURL = model.PhotoURL,
+                    });
+                }
+                db.SaveChanges();
+                return db.CarInfo.Where(c => c.Id == model.Id).Update(r => new CarInfo
+                {
+                    SeriesId = model.SeriesId,
+                    SeriesName = model.SeriesName,
+                    SweptVolume = model.SweptVolume,
+                    ProductAddress = model.ProductAddress,
+                    BrandId = model.BrandId,
+                    BrandName = model.BrandName,
+                    CarColor = model.CarColor,
+                    CarName = model.CarName,
+                    EmissionStandards = model.EmissionStandards,
+                    Fuel = model.Fuel,
+                    LicenseTime = model.LicenseTime,
+                    Odometer = model.Odometer,
+                    Remark = model.Remark,
+                    RetailPrice = model.RetailPrice,
+                    Transmission = model.Transmission,
+                    TypeId = model.TypeId,
+                    TypeName = model.TypeName,
+                    VIN = model.VIN,
+                    IsRepay = model.IsRepay,
+                    TimeStamp = DateTime.Now,
+                });
+            }
+            return db.SaveChanges();
+        }
         public int SoldOut(long Id,Common.EnumModel.ECarStatus status)
         {
             return db.CarInfo.Where(c => c.Id==Id).Update(r => new CarInfo { CarStatus= (byte)status, TimeStamp = DateTime.Now });

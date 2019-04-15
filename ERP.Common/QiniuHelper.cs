@@ -43,5 +43,26 @@ namespace UCMS.Common
             var result = target.UploadFile(filePath, fileName, token, null);
             return result.Code;
         }
+
+        public static string GetUploadToken()
+        {
+            Mac mac = new Mac(FileConfig.AccessKey, FileConfig.SecretKey);
+            // 本地文件路径
+            // 存储空间名
+            string Bucket = FileConfig.Bucket;
+            // 设置上传策略，详见：https://developer.qiniu.com/kodo/manual/1206/put-policy
+            var putPolicy = new PutPolicy();
+           
+            // 设置要上传的目标空间
+            putPolicy.Scope = Bucket;
+            // 上传策略的过期时间(单位:秒)
+            putPolicy.SetExpires(3600);
+            // 文件上传完毕后，在多少天后自动被删除
+            //putPolicy.DeleteAfterDays = 1;
+            // 生成上传token
+            string token = Auth.CreateUploadToken(mac, putPolicy.ToJsonString());
+
+            return token;
+        }
     }
 }
